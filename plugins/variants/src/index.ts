@@ -29,6 +29,11 @@ import {
 export default class VariantsPlugin extends Plugin {
   name = 'VariantsPlugin'
 
+  exports = {
+    VcfTabixAdapterClass,
+    vcfTabixAdapterConfigSchema,
+  }
+
   install(pluginManager: PluginManager) {
     pluginManager.addAdapterType(
       () =>
