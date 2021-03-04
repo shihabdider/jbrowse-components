@@ -31,6 +31,11 @@ interface Ref {
   end: number
 }
 
+interface HicOptions extends BaseOptions {
+  resolution?: number
+  bpPerPx?: number
+}
+
 // wraps generic-filehandle so the read function only takes a position and length
 // in some ways, generic-filehandle wishes it was just this but it has
 // to adapt to the node.js fs promises API
@@ -108,11 +113,11 @@ export default class HicAdapter extends BaseFeatureDataAdapter {
     return chosenResolution
   }
 
-  getFeatures(region: Region, opts: BaseOptions = {}) {
+  getFeatures(region: Region, opts: HicOptions = {}) {
     return ObservableCreate<ContactRecord>(async observer => {
       const { refName: chr, start, end } = region
-      const { resolution, bpPerPx, statusCallback = () => {} } = opts
-      const res = await this.getResolution(bpPerPx / resolution || 1000, opts)
+      const { resolution, bpPerPx = 1, statusCallback = () => {} } = opts
+      const res = await this.getResolution(bpPerPx / (resolution || 1000), opts)
       statusCallback('Downloading .hic data')
 
       const records = await this.hic.getContactRecords(
