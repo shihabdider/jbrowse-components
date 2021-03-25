@@ -21,6 +21,19 @@ import {
   BaseCard,
 } from '@jbrowse/core/BaseFeatureWidget/BaseFeatureDetail'
 import BreakendOptionDialog from './BreakendOptionDialog'
+import { Breakend } from '../VcfTabixAdapter/VcfFeature'
+
+// from vcf-js
+function toString(feat: string | Breakend) {
+  if (typeof feat === 'string') {
+    return feat
+  }
+  const char = feat.MateDirection === 'left' ? ']' : '['
+  if (feat.Join === 'left') {
+    return `${char}${feat.MatePosition}${char}${feat.Replacement}`
+  }
+  return `${feat.Replacement}${char}${feat.MatePosition}${char}`
+}
 
 function VariantSamples(props: any) {
   const [filter, setFilter] = useState<any>({})
@@ -219,7 +232,14 @@ function VariantFeatureDetails(props: any) {
 
   return (
     <Paper data-testid="variant-side-drawer">
-      <FeatureDetails feature={rest} descriptions={descriptions} {...props} />
+      <FeatureDetails
+        feature={{
+          ...rest,
+          ALT: rest.ALT?.map((alt: string | Breakend) => toString(alt)),
+        }}
+        descriptions={descriptions}
+        {...props}
+      />
       <Divider />
       {feat.type === 'breakend' ? (
         <BreakendPanel
