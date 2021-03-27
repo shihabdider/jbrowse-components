@@ -55,6 +55,7 @@ export default class BamAdapter extends BaseFeatureDataAdapter {
     const chunkSizeLimit = readConfObject(config, 'chunkSizeLimit')
     const fetchSizeLimit = readConfObject(config, 'fetchSizeLimit')
     this.bam = new BamFile({
+      yieldThreadTime: 0,
       bamFilehandle: openLocation(bamLocation),
       csiFilehandle: indexType === 'CSI' ? openLocation(location) : undefined,
       baiFilehandle: indexType !== 'CSI' ? openLocation(location) : undefined,
@@ -153,7 +154,7 @@ export default class BamAdapter extends BaseFeatureDataAdapter {
     region: Region & { originalRefName?: string },
     opts?: BaseOptions,
   ) {
-    const { refName, start, end, originalRefName } = region
+    const { refName, start, end, originalRefName = refName } = region
     const { signal, statusCallback = () => {} } = opts || {}
     return ObservableCreate<Feature>(async observer => {
       await this.setup(opts)
@@ -171,7 +172,7 @@ export default class BamAdapter extends BaseFeatureDataAdapter {
         if (!record.get('md')) {
           // eslint-disable-next-line no-await-in-loop
           ref = await this.seqFetch(
-            originalRefName || refName,
+            originalRefName,
             record.get('start'),
             record.get('end'),
           )
