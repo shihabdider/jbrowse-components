@@ -14,9 +14,11 @@ import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
 import { getSession } from '@jbrowse/core/util'
 import ViewType from '@jbrowse/core/pluggableElementTypes/ViewType'
 import { PluggableElementType } from '@jbrowse/core/pluggableElementTypes'
+
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 
 import BigsiDialog from './components/BigsiDialog'
+import MyDialog from './components/MyDialog'
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
 
 export default class extends Plugin {
@@ -78,7 +80,15 @@ export default class extends Plugin {
                             leftOffset,
                             rightOffset,
                           )
-                          console.log(selectedRegions)
+
+                          getSession(self).queueDialog(doneCallback => [
+                            MyDialog,
+                            {
+                              model: self,
+                              selectedRegions,
+                              handleClose: doneCallback,
+                            },
+                          ])
                         },
                       },
                     ]
