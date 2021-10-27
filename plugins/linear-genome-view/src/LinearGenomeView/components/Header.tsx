@@ -5,6 +5,7 @@ import {
   Button,
   FormGroup,
   Typography,
+  IconButton,
   makeStyles,
   useTheme,
   alpha,
@@ -22,9 +23,9 @@ import RefNameAutocomplete from './RefNameAutocomplete'
 import OverviewScaleBar from './OverviewScaleBar'
 import ZoomControls from './ZoomControls'
 import SequenceSearchButton from './SequenceSearchButton'
+import { dedupe } from './util'
 
 type LGV = Instance<LinearGenomeViewStateModel>
-import { dedupe } from './util'
 
 const WIDGET_HEIGHT = 32
 const SPACING = 7
@@ -193,6 +194,20 @@ const LinearGenomeViewHeader = observer(
         </FormGroup>
         <RegionWidth model={model} />
         <ZoomControls model={model} />
+
+        {model.extraHeaderButtons().map(button => {
+          if (button.icon) {
+            const Icon = button.icon
+            return (
+              <IconButton onClick={button.onClick}>
+                <Icon />
+              </IconButton>
+            )
+          } else {
+            return <button.component />
+          }
+        })}
+
         <div className={classes.spacer} />
       </div>
     )

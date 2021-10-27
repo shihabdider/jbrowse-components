@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import { getConf } from '@jbrowse/core/configuration'
 import { BaseViewModel } from '@jbrowse/core/pluggableElementTypes/models'
 import { Region } from '@jbrowse/core/util/types'
@@ -14,6 +15,7 @@ import {
   springAnimate,
   isSessionModelWithWidgets,
 } from '@jbrowse/core/util'
+import { IconButton, Dialog, DialogTitle } from '@material-ui/core'
 import BaseResult from '@jbrowse/core/TextSearch/BaseResults'
 import { BlockSet, BaseBlock } from '@jbrowse/core/util/blockTypes'
 import calculateDynamicBlocks from '@jbrowse/core/util/calculateDynamicBlocks'
@@ -34,6 +36,8 @@ import {
 import Base1DView from '@jbrowse/core/util/Base1DViewModel'
 import PluginManager from '@jbrowse/core/PluginManager'
 import { TrackSelector as TrackSelectorIcon } from '@jbrowse/core/ui/Icons'
+
+//
 import SyncAltIcon from '@material-ui/icons/SyncAlt'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import LabelIcon from '@material-ui/icons/Label'
@@ -1423,6 +1427,30 @@ export function stateModelFactory(pluginManager: PluginManager) {
             icon: MenuOpenIcon,
             onClick: () => {
               self.setSequenceDialogOpen(true)
+            },
+          },
+        ]
+      },
+
+      extraHeaderButtons() {
+        return [
+          {
+            icon: MenuOpenIcon,
+            onClick: () => alert('Hello'),
+          },
+          {
+            component: () => {
+              const [open, setOpen] = useState(false)
+              return (
+                <>
+                  <Dialog open={open} onClose={() => setOpen(false)}>
+                    <DialogTitle>Hello</DialogTitle>
+                  </Dialog>
+                  <IconButton onClick={() => setOpen(true)}>
+                    <SyncAltIcon />
+                  </IconButton>
+                </>
+              )
             },
           },
         ]

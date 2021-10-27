@@ -20,7 +20,6 @@ import TracksContainer from './TracksContainer'
 import ImportForm from './ImportForm'
 import MiniControls from './MiniControls'
 import SequenceDialog from './SequenceDialog'
-import BigsiDialog from './BigsiDialog'
 import SearchResultsDialog from './SearchResultsDialog'
 import Ruler from './Ruler'
 
