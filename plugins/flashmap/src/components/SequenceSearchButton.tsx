@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { getSession } from '@jbrowse/core/util'
 import { observer } from 'mobx-react'
 import Button from '@material-ui/core/Button'
@@ -6,8 +6,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import Search from '@material-ui/icons/Search'
 import { makeStyles } from '@material-ui/core/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
-import { LinearGenomeViewModel } from '..'
-import bucketmap from './bigsi/bigsis/hg38_16int_bucket_map.json'
+import bucketmap from '../BigsiRPC/bigsis/hg38_16int_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 import {
@@ -44,16 +43,15 @@ const useStyles = makeStyles(theme => ({
 
 
 function makeBigsiHitsFeatures(
-  self: LinearGenomeViewModel,
+  model: any,
   response: any,
 ) {
 
-  const refName = '1'
-  //const numBuckets = 32 // needed for computing feature glpyh length
+  const refName =
+    model.leftOffset?.refName || model.rightOffset?.refName || ''
 
   let uniqueId = 0
-  let allFeatures = []
-
+  const allFeatures = []
   for (let bucket in response) {
     const bigsiFeatures = response[bucket]
     bigsiFeatures.uniqueId = uniqueId
@@ -68,7 +66,7 @@ function makeBigsiHitsFeatures(
   return allFeatures
 }
 
-function SequenceSearchButton({ model }: { model: LinearGenomeViewModel }) {
+function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
 
   const session = getSession(model)
@@ -127,12 +125,10 @@ function SequenceSearchButton({ model }: { model: LinearGenomeViewModel }) {
             onClick={async () => {
                 const sessionId = 'bigsiQuery'
                 const querySequence = sequence.replace(/\r?\n|\r/g, '')
-                console.log(querySequence)
                 const params = {
                     sessionId,
                     querySequence
                 }
-                //console.log(params)
                 const results = await rpcManager.call(
                 sessionId,
                 "BigsiQueryRPC",

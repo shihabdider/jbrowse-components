@@ -18,12 +18,10 @@ import {
 import CloseIcon from '@material-ui/icons/Close'
 import { getSession } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
-import { LinearGenomeViewModel } from '..'
-import queryBigsi from './bigsi/query_bigsi'
 //import bigsi from './bigsi/bigsis/hg38_chr1and2.json'
 //import hexBigsi from './bigsi/bigsis/hg38_hex.json'
 //import bucketmap from './bigsi/bigsis/hg38_bucket_map.json'
-import bucketmap from './bigsi/bigsis/hg38_16int_bucket_map.json'
+import bucketmap from '../BigsiRPC/bigsis/hg38_16int_bucket_map.json'
 
 const useStyles = makeStyles(theme => ({
   loadingMessage: {
@@ -44,26 +42,26 @@ const useStyles = makeStyles(theme => ({
 }))
 
 function makeBigsiHitsFeatures(
-  self: LinearGenomeViewModel,
+  offsets: any,
   response: any,
 ) {
 
-    console.log('raw response', response)
+  console.log('raw response', response)
   const refName =
-    self.leftBigsiOffset?.refName || self.rightBigsiOffset?.refName || ''
+    offsets.leftOffset?.refName || offsets.rightOffset?.refName || ''
 
   const numBuckets = 16
-  const featureLength = (self.rightBigsiOffset.coord - self.leftBigsiOffset.coord)/numBuckets
+  const featureLength = (offsets.rightOffset.coord - offsets.leftOffset.coord)/numBuckets
 
   let uniqueId = 0
-  let allFeatures = []
+  const allFeatures = []
   for (let bucket in response) {
     const bigsiFeatures = response[bucket]
     bigsiFeatures.uniqueId = uniqueId
     bigsiFeatures.bucketStart = bucketmap[bucket].bucketStart
     bigsiFeatures.bucketEnd = bucketmap[bucket].bucketEnd
     bigsiFeatures.name = `${bucketmap[bucket].refName}:${bucketmap[bucket].bucketStart}-${bucketmap[bucket].bucketEnd}`
-    bigsiFeatures.start = self.leftBigsiOffset.coord + (parseInt(bucket%10) * featureLength)
+    bigsiFeatures.start = offsets.leftOffset.coord + (parseInt(bucket%10) * featureLength)
     bigsiFeatures.end = bigsiFeatures.start + featureLength - 1
     bigsiFeatures.refName = refName
     allFeatures.push(bigsiFeatures)
@@ -74,41 +72,47 @@ function makeBigsiHitsFeatures(
 }
 
 async function getBigsiHitsFeatures(
-  self: LinearGenomeViewModel,
+  model: any,
   querySequence: string,
 ) {
-    const session = getSession(self)
-    const { rpcManager, assemblyManager } = session
+  const session = getSession(model)
+  const { rpcManager } = session
 
-    const sessionId = 'bigsiQuery'
+  const sessionId = 'bigsiQuery'
 
-    const params = {
-        sessionId,
-        querySequence
-    }
-    const response = await rpcManager.call(
+  const params = {
+    sessionId,
+    querySequence
+  }
+  const response = await rpcManager.call(
         sessionId,
         "BigsiQueryRPC",
         params
-    )
-    const allFeatures = makeBigsiHitsFeatures(self, response)
+  )
+
+
+  const { leftOffset, rightOffset } = model
+  const offsets = { leftOffset, rightOffset }
+  const allFeatures = makeBigsiHitsFeatures(offsets, response)
+
     return allFeatures
 
   };
        
 
 function constructBigsiTrack(
-    self: LinearGenomeViewModel,
-    allFeatures,
+    self: any,
+    allFeatures: object[],
 ){
     const refName =
-      self.leftBigsiOffset?.refName || self.rightBigsiOffset?.refName || ''
+      self.leftOffset?.refName || self.rightOffset?.refName || ''
+
     const assemblyName = 
-      self.leftBigsiOffset?.assemblyName || self.rightBigsiOffset?.assemblyName
+      self.leftOffset?.assemblyName || self.rightOffset?.assemblyName
 
     const bigsiQueryTrack = {
             trackId: `track-${Date.now()}`,
-            name: `Sequence Search ${assemblyName}:Chr${refName}:${self.leftBigsiOffset.coord}-${self.rightBigsiOffset.coord}`,
+            name: `Sequence Search ${assemblyName}:Chr${refName}:${self.leftOffset.coord}-${self.rightOffset.coord}`,
             assemblyNames: ['hg38'],
             type: 'FeatureTrack',
             adapter: {
@@ -123,7 +127,6 @@ function constructBigsiTrack(
 
     self.showTrack(bigsiQueryTrack.trackId)
     //console.log(response)
-
 }
 
 /**
@@ -131,13 +134,13 @@ function constructBigsiTrack(
  * @param selectedRegions - Region[]
  * @returns Features[]
  */
-export async function fetchSequence(
-  self: LinearGenomeViewModel,
+async function fetchSequence(
+  self: any,
   selectedRegions: Region[],
 ) {
   const session = getSession(self)
   const assemblyName =
-    self.leftBigsiOffset?.assemblyName || self.rightBigsiOffset?.assemblyName || ''
+    self.leftOffset?.assemblyName || self.rightOffset?.assemblyName || ''
   const { rpcManager, assemblyManager } = session
   const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
 
@@ -164,7 +167,7 @@ function BigsiDialog({
   model,
   handleClose,
 }: {
-  model: LinearGenomeViewModel
+  model: any
   handleClose: () => void
 }) {
   const classes = useStyles()
@@ -172,31 +175,34 @@ function BigsiDialog({
   const [error, setError] = useState<Error>()
   const [sequence, setSequence] = useState('')
   const loading = Boolean(!sequence) || Boolean(error)
-  const { leftBigsiOffset, rightBigsiOffset } = model
+  const { leftOffset, rightOffset } = model
 
   // avoid infinite looping of useEffect
   // random note: the current selected region can't be a computed because it
   // uses action on base1dview even though it's on the ephemeral base1dview
-  const regionsSelected = useMemo(
-    () => model.getSelectedRegions(leftBigsiOffset, rightBigsiOffset),
-    [model, leftBigsiOffset, rightBigsiOffset],
+  const queryRegion = useMemo(
+    () => model.getSelectedRegions(leftOffset, rightOffset),
+    [model, leftOffset, rightOffset],
   )
 
-  console.log('regionsSelected', regionsSelected)
+  console.log('queryRegion', queryRegion)
 
   useEffect(() => {
     let active = true
 
-
     ;(async () => {
       try {
-        if (regionsSelected.length > 0) {
-          const chunks = (await fetchSequence(model, regionsSelected))[0].data.seq
+        if (queryRegion.length > 0) {
+          const results = await fetchSequence(model, queryRegion)
+          const data = results.map(result => result.get('seq'))
+          const querySequence = (data.join(''))
+          console.log('data', data)
           if (active) {
-            const allFeatures = await getBigsiHitsFeatures(model, chunks)
+            console.log('querySequence', querySequence.length)
+            const allFeatures = await getBigsiHitsFeatures(model, querySequence)
             console.log('allFeatures ', allFeatures)
             constructBigsiTrack(model, allFeatures)
-            setSequence(chunks)
+            setSequence(querySequence)
           }
         } else {
           throw new Error('Selected region is out of bounds')
@@ -212,7 +218,7 @@ function BigsiDialog({
     return () => {
       active = false
     }
-  }, [model, session, regionsSelected, setSequence])
+  }, [model, session, queryRegion, setSequence])
 
   const sequenceTooLarge = sequence.length > 300_000
 
@@ -233,7 +239,7 @@ function BigsiDialog({
             className={classes.closeButton}
             onClick={() => {
               handleClose()
-              model.setBigsiOffsets(undefined, undefined)
+              model.setOffsets(undefined, undefined)
             }}
           >
             <CloseIcon />
@@ -262,7 +268,7 @@ function BigsiDialog({
         <Button
           onClick={() => {
             handleClose()
-            model.setBigsiOffsets(undefined, undefined)
+            model.setOffsets(undefined, undefined)
           }}
           color="primary"
           autoFocus

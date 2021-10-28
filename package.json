@@ -27,6 +27,9 @@
       "pre-commit": "node scripts/pre-commit.js"
     }
   },
+  "resolutions": {
+    "babel-loader": "8.1.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
@@ -89,7 +92,6 @@
     "@types/tmp": "^0.2.1",
     "@types/unzipper": "^0.10.3",
     "@typescript-eslint/parser": "^4.33.0",
-    "babel-loader": "8.1.0",
     "babel-plugin-inline-import-data-uri": "^1.0.1",
     "babel-preset-mobx": "^2.0.0",
     "babel-preset-react-app": "9.1.2",
@@ -155,6 +157,7 @@
   "dependencies": {
     "@babel/helper-builder-react-jsx": "^7.15.4",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
+    "find-cache-dir": "^3.3.2",
     "make-dir": "^3.1.0"
   }
 }

@@ -144,8 +144,6 @@ export function stateModelFactory(pluginManager: PluginManager) {
       coarseTotalBp: 0,
       leftOffset: undefined as undefined | BpOffset,
       rightOffset: undefined as undefined | BpOffset,
-      leftBigsiOffset: undefined as undefined | BpOffset,
-      rightBigsiOffset: undefined as undefined | BpOffset,
       DialogComponent: undefined as
         | React.FC<{ handleClose: () => void; model: { clearView: Function } }>
         | undefined,
@@ -189,9 +187,6 @@ export function stateModelFactory(pluginManager: PluginManager) {
       },
       get isSearchDialogDisplayed() {
         return self.searchResults !== undefined
-      },
-      get isBigsiDialogDisplayed() {
-        return self.leftBigsiOffset && self.rightBigsiOffset
       },
       get scaleBarHeight() {
         return SCALE_BAR_HEIGHT + RESIZE_HANDLE_HEIGHT
@@ -530,12 +525,6 @@ export function stateModelFactory(pluginManager: PluginManager) {
         // sets offsets used in the get sequence dialog
         self.leftOffset = left
         self.rightOffset = right
-      },
-
-      setBigsiOffsets(left: undefined | BpOffset, right: undefined | BpOffset) {
-        // sets offsets used in the bigsi dialog
-        self.leftBigsiOffset = left
-        self.rightBigsiOffset = right
       },
 
       setSearchResults(
@@ -1435,23 +1424,21 @@ export function stateModelFactory(pluginManager: PluginManager) {
       extraHeaderButtons() {
         return [
           {
-            icon: MenuOpenIcon,
-            onClick: () => alert('Hello'),
-          },
-          {
-            component: () => {
-              const [open, setOpen] = useState(false)
-              return (
-                <>
-                  <Dialog open={open} onClose={() => setOpen(false)}>
-                    <DialogTitle>Hello</DialogTitle>
-                  </Dialog>
-                  <IconButton onClick={() => setOpen(true)}>
-                    <SyncAltIcon />
-                  </IconButton>
-                </>
-              )
-            },
+            label: 'label',
+            component: false,
+            //component: () => {
+            //  const [open, setOpen] = useState(false)
+            //  return (
+            //    <>
+            //      <Dialog open={open} onClose={() => setOpen(false)}>
+            //        <DialogTitle>Hello</DialogTitle>
+            //      </Dialog>
+            //      <IconButton onClick={() => setOpen(true)}>
+            //        <SyncAltIcon />
+            //      </IconButton>
+            //    </>
+            //  )
+            //},
           },
         ]
       },

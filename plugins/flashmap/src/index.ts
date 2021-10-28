@@ -18,6 +18,7 @@ import { PluggableElementType } from '@jbrowse/core/pluggableElementTypes'
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 
 import BigsiDialog from './components/BigsiDialog'
+import SequenceSearchButton from './components/SequenceSearchButton'
 import MyDialog from './components/MyDialog'
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
 
@@ -60,14 +61,20 @@ export default class extends Plugin {
           const newStateModel = stateModel.extend(
             (self: LinearGenomeViewModel) => {
               const superRubberBandMenuItems = self.rubberBandMenuItems
+              const superHeaderButtons = self.extraHeaderButtons
               return {
-                actions: {
-                  activateSequenceSearchDialog() {
-                    const session = getSession(self)
-                    console.log(session)
-                  },
-                },
                 views: {
+                  extraHeaderButtons() {
+                    const newHeaderButtons = [
+                      ...superHeaderButtons(),
+                      {
+                        label: 'Sequence Search',
+                        component: SequenceSearchButton,
+                      },
+                    ]
+
+                    return newHeaderButtons
+                  },
                   rubberBandMenuItems() {
                     const newRubberBandMenuItems = [
                       ...superRubberBandMenuItems(),
@@ -82,10 +89,9 @@ export default class extends Plugin {
                           )
 
                           getSession(self).queueDialog(doneCallback => [
-                            MyDialog,
+                            BigsiDialog,
                             {
                               model: self,
-                              selectedRegions,
                               handleClose: doneCallback,
                             },
                           ])

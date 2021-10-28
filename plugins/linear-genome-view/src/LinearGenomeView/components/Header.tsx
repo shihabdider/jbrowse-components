@@ -194,19 +194,14 @@ const LinearGenomeViewHeader = observer(
         </FormGroup>
         <RegionWidth model={model} />
         <ZoomControls model={model} />
-
         {model.extraHeaderButtons().map(button => {
-          if (button.icon) {
-            const Icon = button.icon
-            return (
-              <IconButton onClick={button.onClick}>
-                <Icon />
-              </IconButton>
-            )
-          } else {
-            return <button.component />
-          }
-        })}
+            if (button.component) {
+                return (<button.component model={model} />)
+            } else {
+                return null
+            }
+          })
+        }
 
         <div className={classes.spacer} />
       </div>
