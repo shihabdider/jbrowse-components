@@ -199,7 +199,7 @@ async function getBinaryDumpBigsiSubmatrix(bigsi, rowFilter, numCols){
             //console.log('ints: ', bigsi.slice(offsetStart, offsetEnd))
 
             const rowBitString = Array.from(bigsi.slice(offsetStart, offsetEnd))
-                .map((num) => {return num.toString(2)})
+                .map((num) => {return commonFunc.zeroPadBitstring(num.toString(2), 16)})
                 .join('')
             //console.log('bitstring: ', rowBitString)
             const bs = new BitSet(rowBitString)

@@ -2,6 +2,11 @@ const murmur = require('murmurhash-js')
 const { BloomFilter } = require('bloom-filters')
 const { IndexedFasta } = require('@gmod/indexedfasta')
 
+function zeroPadBitstring(bitstring, places){
+    const paddedString = bitstring.padStart(places, '0')
+    return paddedString
+}
+
 function zeroPad(num, places){
     const paddedString = String(num).padStart(places, '0')
     return paddedString
@@ -140,6 +145,7 @@ function makeMinimizersBloomFilter(minimizers, sizeBloomFilter=160000){
 }
 
 module.exports = {
+    zeroPadBitstring: zeroPadBitstring,
     zeroPad: zeroPad,
     bitStringToArrayBuffer: bitStringToArrayBuffer,
     makeBigsiRowPath: makeBigsiRowPath,

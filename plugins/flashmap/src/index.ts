@@ -21,6 +21,7 @@ import BigsiDialog from './components/BigsiDialog'
 import SequenceSearchButton from './components/SequenceSearchButton'
 import MyDialog from './components/MyDialog'
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
+import { MashmapQueryRPC } from './MashmapRPC/rpcMethods'
 
 export default class extends Plugin {
   name = 'FlashmapPlugin'
@@ -113,5 +114,6 @@ export default class extends Plugin {
     )
 
     pluginManager.addRpcMethod(() => new BigsiQueryRPC(pluginManager))
+    //pluginManager.addRpcMethod(() => new MashmapQueryRPC(pluginManager))
   }
 }
