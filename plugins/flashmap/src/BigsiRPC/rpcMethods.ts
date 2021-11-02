@@ -1,8 +1,7 @@
 import RpcMethodType from '@jbrowse/core/pluggableElementTypes/RpcMethodType'
 import SerializableFilterChain from '@jbrowse/core/pluggableElementTypes/renderers/util/serializableFilterChain'
 
-// just make sure to add your extra dependencies to plugins/linear-genome-view/package.json
-import { runBinaryBigsiQuery } from './query_bigsi'
+import { main } from './query_bigsi'
 
 export class BigsiQueryRPC extends RpcMethodType {
   name = 'BigsiQueryRPC'
@@ -31,7 +30,7 @@ export class BigsiQueryRPC extends RpcMethodType {
       rpcDriverClassName,
     )
     const { querySequence, sessionId } = deserializedArgs
-    const results = await runBinaryBigsiQuery(querySequence)
+    const results = await main(querySequence)
     return results
   }
 }

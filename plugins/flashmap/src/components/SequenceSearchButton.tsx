@@ -6,7 +6,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import Search from '@material-ui/icons/Search'
 import { makeStyles } from '@material-ui/core/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
-import bucketmap from '../BigsiRPC/bigsis/hg38_16int_bucket_map.json'
+import bucketmap from '../BigsiRPC/bigsi-maps/hg38_chr1_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 import {
@@ -64,6 +64,13 @@ function makeBigsiHitsFeatures(
     }
 
   return allFeatures
+}
+
+function cleanSequence(sequence: string){
+  const seqNoHeader = sequence.replace(/^>.*/,'');
+  const cleanSeq = seqNoHeader.replace(/\r?\n|\r/g, '')
+
+  return cleanSeq
 }
 
 function SequenceSearchButton({ model }: { model: any }) {
@@ -124,7 +131,7 @@ function SequenceSearchButton({ model }: { model: any }) {
             <Button
             onClick={async () => {
                 const sessionId = 'bigsiQuery'
-                const querySequence = sequence.replace(/\r?\n|\r/g, '')
+                const querySequence = cleanSequence(sequence)
                 const params = {
                     sessionId,
                     querySequence

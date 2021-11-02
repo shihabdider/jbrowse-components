@@ -18,10 +18,7 @@ import {
 import CloseIcon from '@material-ui/icons/Close'
 import { getSession } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
-//import bigsi from './bigsi/bigsis/hg38_chr1and2.json'
-//import hexBigsi from './bigsi/bigsis/hg38_hex.json'
-//import bucketmap from './bigsi/bigsis/hg38_bucket_map.json'
-import bucketmap from '../BigsiRPC/bigsis/hg38_16int_bucket_map.json'
+import bucketmap from '../BigsiRPC/bigsi-maps/hg38_chr1_bucket_map.json'
 
 const useStyles = makeStyles(theme => ({
   loadingMessage: {

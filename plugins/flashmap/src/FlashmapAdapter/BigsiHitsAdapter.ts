@@ -30,19 +30,19 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
     const features = BigsiHitsAdapter.hitsToFeatures(
       rawHits,
       bucketMap,
-      viewWindow
+      viewWindow,
     )
     this.features = BigsiHitsAdapter.makeFeatures(features || [])
   }
 
-  static hitsToFeatures(rawHits: {}, bucketMap: {}, viewWindow: {}) {
+  static hitsToFeatures(rawHits: {}, bucketMap: {}, viewWindow: any) {
     const numBuckets = 16
-    const featureLength = (viewWindow.end - viewWindow.start)/numBuckets
+    const featureLength = (viewWindow.end - viewWindow.start) / numBuckets
 
     let uniqueId = 0
-    let allFeatures = []
+    let allFeatures: object[] = []
     for (let bucket in rawHits) {
-      const startCoord = 
+      const startCoord =
         viewWindow.start + (parseInt(bucket) % numBuckets) * featureLength
       const endCoord = startCoord + featureLength - 1
       const bigsiFeatures = {
@@ -56,7 +56,6 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
         hits: rawHits[bucket].hits,
         score: rawHits[bucket].score,
       }
-
     }
     return allFeatures
   }
