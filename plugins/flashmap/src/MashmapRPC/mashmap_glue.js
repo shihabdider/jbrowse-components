@@ -1,5 +1,5 @@
 const fs = require('fs');
-const Module = require('./mashmap.js')
+const Module = require('./mashmap_sthread.js')
 
 async function main(ref, query){
     Module.FS.writeFile('ref.fa', ref)

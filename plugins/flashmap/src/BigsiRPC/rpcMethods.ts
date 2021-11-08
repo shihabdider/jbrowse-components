@@ -31,6 +31,7 @@ export class BigsiQueryRPC extends RpcMethodType {
     )
     const { querySequence, sessionId } = deserializedArgs
     const results = await main(querySequence)
+    console.log('results', results)
     return results
   }
 }

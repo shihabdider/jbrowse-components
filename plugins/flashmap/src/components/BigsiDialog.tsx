@@ -18,7 +18,6 @@ import {
 import CloseIcon from '@material-ui/icons/Close'
 import { getSession } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
-import bucketmap from '../BigsiRPC/bigsi-maps/hg38_chr1_bucket_map.json'
 
 const useStyles = makeStyles(theme => ({
   loadingMessage: {
@@ -38,37 +37,8 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-function makeBigsiHitsFeatures(
-  offsets: any,
-  response: any,
-) {
 
-  console.log('raw response', response)
-  const refName =
-    offsets.leftOffset?.refName || offsets.rightOffset?.refName || ''
-
-  const numBuckets = 16
-  const featureLength = (offsets.rightOffset.coord - offsets.leftOffset.coord)/numBuckets
-
-  let uniqueId = 0
-  const allFeatures = []
-  for (let bucket in response) {
-    const bigsiFeatures = response[bucket]
-    bigsiFeatures.uniqueId = uniqueId
-    bigsiFeatures.bucketStart = bucketmap[bucket].bucketStart
-    bigsiFeatures.bucketEnd = bucketmap[bucket].bucketEnd
-    bigsiFeatures.name = `${bucketmap[bucket].refName}:${bucketmap[bucket].bucketStart}-${bucketmap[bucket].bucketEnd}`
-    bigsiFeatures.start = offsets.leftOffset.coord + (parseInt(bucket%10) * featureLength)
-    bigsiFeatures.end = bigsiFeatures.start + featureLength - 1
-    bigsiFeatures.refName = refName
-    allFeatures.push(bigsiFeatures)
-    uniqueId++
-    }
-
-  return allFeatures
-}
-
-async function getBigsiHitsFeatures(
+async function getBigsiRawHits(
   model: any,
   querySequence: string,
 ) {
@@ -81,25 +51,22 @@ async function getBigsiHitsFeatures(
     sessionId,
     querySequence
   }
+
   const response = await rpcManager.call(
         sessionId,
         "BigsiQueryRPC",
         params
-  )
+  ) 
 
+  console.log('response', response)
 
-  const { leftOffset, rightOffset } = model
-  const offsets = { leftOffset, rightOffset }
-  const allFeatures = makeBigsiHitsFeatures(offsets, response)
-
-    return allFeatures
-
+  return response
   };
        
 
 function constructBigsiTrack(
     self: any,
-    allFeatures: object[],
+    rawHits: object[],
 ){
     const refName =
       self.leftOffset?.refName || self.rightOffset?.refName || ''
@@ -107,14 +74,18 @@ function constructBigsiTrack(
     const assemblyName = 
       self.leftOffset?.assemblyName || self.rightOffset?.assemblyName
 
+    const bigsiBucketMapPath = '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+
     const bigsiQueryTrack = {
             trackId: `track-${Date.now()}`,
             name: `Sequence Search ${assemblyName}:Chr${refName}:${self.leftOffset.coord}-${self.rightOffset.coord}`,
             assemblyNames: ['hg38'],
             type: 'FeatureTrack',
             adapter: {
-                type: 'FromConfigAdapter',
-                features: allFeatures,
+                type: 'BigsiHitsAdapter',
+                rawHits: rawHits,
+                bigsiBucketMapPath: bigsiBucketMapPath,
+                viewWindow: {refName: refName, start: self.leftOffset.coord, end: self.rightOffset.coord},
                 //features: [ { "refName": "1", "start":1, "end":200000, "uniqueId": "id1" }],
                 },
             }
@@ -196,9 +167,8 @@ function BigsiDialog({
           console.log('data', data)
           if (active) {
             console.log('querySequence', querySequence.length)
-            const allFeatures = await getBigsiHitsFeatures(model, querySequence)
-            console.log('allFeatures ', allFeatures)
-            constructBigsiTrack(model, allFeatures)
+            const rawHits = await getBigsiRawHits(model, querySequence)
+            constructBigsiTrack(model, rawHits)
             setSequence(querySequence)
           }
         } else {

@@ -8,6 +8,7 @@ import { NoAssemblyRegion } from '@jbrowse/core/util/types'
 import { readConfObject } from '@jbrowse/core/configuration'
 import { ConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { BigsiHitsSchema as BigsiHitsAdapterBigsiHitsSchema } from './configSchema'
+import bucketMap from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 /**
  * Adapter that just returns the features defined in its `features` configuration
@@ -24,7 +25,6 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
     super(config)
     const rawHits = readConfObject(config, 'rawHits')
     const bucketMapPath = readConfObject(config, 'bigsiBucketMapPath')
-    const bucketMap = require(bucketMapPath)
     const viewWindow = readConfObject(config, 'viewWindow')
 
     const features = BigsiHitsAdapter.hitsToFeatures(
@@ -36,12 +36,14 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
   }
 
   static hitsToFeatures(rawHits: {}, bucketMap: {}, viewWindow: any) {
+    console.log(bucketMap)
     const numBuckets = 16
     const featureLength = (viewWindow.end - viewWindow.start) / numBuckets
 
     let uniqueId = 0
-    let allFeatures: object[] = []
-    for (let bucket in rawHits) {
+    const allFeatures: object[] = []
+    for (const bucket in rawHits) {
+      console.log('bucket', bucket)
       const startCoord =
         viewWindow.start + (parseInt(bucket) % numBuckets) * featureLength
       const endCoord = startCoord + featureLength - 1
@@ -56,6 +58,9 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
         hits: rawHits[bucket].hits,
         score: rawHits[bucket].score,
       }
+      console.log(bigsiFeatures)
+      allFeatures.push(bigsiFeatures)
+      uniqueId++
     }
     return allFeatures
   }

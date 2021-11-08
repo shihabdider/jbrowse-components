@@ -9,11 +9,11 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET bigsi dump file*/
-router.get('/public/hg38_16int_bdump.bin', function(req, res){
-    const path = `/Users/shihabdider/Research/Flashmap/jbrowse_demo/jbrowse-components/plugins/linear-genome-view/src/LinearGenomeView/components/bigsi/binarybigsi/public/hg38_16int_bdump.bin`
+router.get('/public/:filename', function(req, res){
+    const path = 
+        '/Users/shihabdider/Research/Flashmap/jbrowse_demo/jbrowse-components/plugins/flashmap/src/BigsiRPC/binarybigsi/public/' 
+        + req.params.filename
     const bigsiRowBuf = fs.readFileSync(path)
-    //const array = new Uint16Array(bigsiRowBuf);
-    //const bs = new BitSet(array)
     res.send(bigsiRowBuf)
 })
 

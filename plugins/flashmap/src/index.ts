@@ -10,10 +10,14 @@ import {
   MashmapOutputAdapterClass,
   MashmapOutputSchema,
 } from './FlashmapAdapter'
-import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
 import { getSession } from '@jbrowse/core/util'
+import DisplayType from '@jbrowse/core/pluggableElementTypes/DisplayType'
 import ViewType from '@jbrowse/core/pluggableElementTypes/ViewType'
 import { PluggableElementType } from '@jbrowse/core/pluggableElementTypes'
+import {
+  LinearGenomeViewModel,
+  BaseLinearDisplayModel,
+} from '@jbrowse/plugin-linear-genome-view'
 
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 
@@ -109,11 +113,50 @@ export default class extends Plugin {
 
           ;(pluggableElement as ViewType).stateModel = newStateModel
         }
+
+        return pluggableElement
+      },
+    )
+
+    pluginManager.addToExtensionPoint(
+      'Core-extendPluggableElement',
+      (pluggableElement: PluggableElementType) => {
+        console.log(pluggableElement.name)
+        if (pluggableElement.name === 'LinearGenomeView') {
+          console.log('baselinerdisplay', pluggableElement.name)
+          const { stateModel } = pluggableElement as ViewType
+          const newStateModel = stateModel.extend(
+            (self: BaseLinearDisplayModel) => {
+              const superContextMenuItems = self.contextMenuItems
+              console.log('contextMenuItem', superContextMenuItems)
+              return {
+                views: {
+                  contextMenuItems() {
+                    const newContextMenuItems = [
+                      ...superContextMenuItems(),
+                      {
+                        label: 'Refined sequence search',
+                        icon: ZoomInIcon,
+                        onClick: () => {
+                          console.log('mashmap dummy result')
+                        },
+                      },
+                    ]
+
+                    return newContextMenuItems
+                  },
+                },
+              }
+            },
+          )
+          ;(pluggableElement as DisplayType).stateModel = newStateModel
+        }
+
         return pluggableElement
       },
     )
 
     pluginManager.addRpcMethod(() => new BigsiQueryRPC(pluginManager))
-    //pluginManager.addRpcMethod(() => new MashmapQueryRPC(pluginManager))
+    pluginManager.addRpcMethod(() => new MashmapQueryRPC(pluginManager))
   }
 }

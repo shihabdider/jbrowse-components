@@ -154,22 +154,26 @@ function computeSubmatrixHits(submatrix, bigsiHits, numBuckets){
     }
 }
 
+//column sum
+const sum = (r, a) => r.map((b, i) => a[i] + b);
+
 // Containment score is the Jaccard containment identity:
 // Hamming weight of submatrix columns divided by
 // number of minimizers inserted into query Bloom Filter
 function computeQueryContainmentScores(submatrix, bigsiHits) {
     const queryMinimizerCount = submatrix.size()[0]
-    const submatrix_T = submatrix.trans()
-    const hammingWeights = []
-    for (const row of submatrix_T){
-        const bs = new BitSet(row.join(''))
-        const weight = bs.cardinality()
-        hammingWeights.push(weight)
-    }
+    const hammingWeights = submatrix().reduce(sum)
+    //const submatrix_T = submatrix.trans()
+    //const hammingWeights = []
+    //for (const row of submatrix_T){
+    //    const bs = new BitSet(row.join(''))
+    //    const weight = bs.cardinality()
+    //    hammingWeights.push(weight)
+    //}
 
     for (let bucketNum = 0; bucketNum < hammingWeights.length; bucketNum++){
         const containmentScore = hammingWeights[bucketNum]/queryMinimizerCount
-        if (containmentScore > 0) {
+        if (containmentScore >= 0.8) {
             bigsiHits[bucketNum] = {'containment': containmentScore}
         }
     }
@@ -194,8 +198,10 @@ function queryHexBigsi(hexBigsi, queryFragmentsBloomFilters){
         }
     }
 
-    for (const bucketId in bigsiHits) {
-        bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['hits']}/${numFragments}`;
+    if (numFragments !== 1){
+        for (const bucketId in bigsiHits) {
+            bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['hits']}/${numFragments}`;
+        }
     }
 
     return bigsiHits
@@ -227,15 +233,21 @@ async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols)
         }
     }
 
-    for (const bucketId in bigsiHits) {
-        bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['hits']}/${numFragments}`;
+    if (numFragments !== 1){
+        for (const bucketId in bigsiHits) {
+            bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['hits']}/${numFragments}`;
+        }
+    } else {
+        for (const bucketId in bigsiHits) {
+            bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['containment']}`;
+        }
     }
 
     return bigsiHits
 }
 
 async function main(querySeq) {
-    const bigsiPath = 'http://localhost:3001/public/hg38_chr1.bin'
+    const bigsiPath = 'http://localhost:3001/public/hg38_whole_genome.bin'
     const response = await fetch(bigsiPath)
     const bigsiBuffer = await response.arrayBuffer()
     console.log('num bytes in the bigsi buffer:', bigsiBuffer.byteLength)
@@ -243,7 +255,7 @@ async function main(querySeq) {
     let bigsiArray = new Uint16Array(bigsiBuffer);
     console.log('bigsiArray size: ', bigsiArray.length)
     
-    const numCols = 16
+    const numCols = 16*24
     const bloomFilterSize = bigsiArray.length*16/numCols
     //const queryFragmentsMinimizers = await winnowQueryFragments(querySeq)
     // Test: non-frag query
