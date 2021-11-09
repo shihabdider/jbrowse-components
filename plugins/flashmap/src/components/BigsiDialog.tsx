@@ -5,15 +5,19 @@ import { readConfObject } from '@jbrowse/core/configuration'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Button,
+  Checkbox,
   CircularProgress,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
-  Container,
-  Typography,
   Divider,
   IconButton,
+  FormControlLabel,
+  FormGroup,
+  Typography,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
 import { getSession } from '@jbrowse/core/util'
@@ -41,6 +45,7 @@ const useStyles = makeStyles(theme => ({
 async function getBigsiRawHits(
   model: any,
   querySequence: string,
+  bigsi: string,
 ) {
   const session = getSession(model)
   const { rpcManager } = session
@@ -49,7 +54,8 @@ async function getBigsiRawHits(
 
   const params = {
     sessionId,
-    querySequence
+    querySequence,
+    bigsi,
   }
 
   const response = await rpcManager.call(
@@ -57,8 +63,6 @@ async function getBigsiRawHits(
         "BigsiQueryRPC",
         params
   ) 
-
-  console.log('response', response)
 
   return response
   };
@@ -86,7 +90,6 @@ function constructBigsiTrack(
                 rawHits: rawHits,
                 bigsiBucketMapPath: bigsiBucketMapPath,
                 viewWindow: {refName: refName, start: self.leftOffset.coord, end: self.rightOffset.coord},
-                //features: [ { "refName": "1", "start":1, "end":200000, "uniqueId": "id1" }],
                 },
             }
 
@@ -94,7 +97,6 @@ function constructBigsiTrack(
     session.addTrackConf(bigsiQueryTrack)
 
     self.showTrack(bigsiQueryTrack.trackId)
-    //console.log(response)
 }
 
 /**
@@ -131,6 +133,56 @@ async function fetchSequence(
   return chunks.map(chunk => chunk[0])
 }
 
+const checkboxes = {
+    hg38: { 
+        name: 'hg38',
+        key: 1,
+        label: 'hg38',
+        path: 'hg38_whole_genome.bin',
+        checked: false,
+    },
+    test: {
+        name: 'test',
+        key: 2,
+        label: 'test',
+        path: 'test.bin',
+        checked: false,
+    }
+}
+
+function CheckboxContainer({checkboxes, ...props}){
+    const [checkedItems, setCheckedItems] = useState(checkboxes)
+
+    const handleChange = (event) => { 
+      const { name, checked } = event.target
+      setCheckedItems({...checkedItems, [name]:{checked:checked}})
+      checkboxes[name].checked = checked
+    }
+
+    useEffect(() => console.log(checkedItems), [checkedItems])
+    
+
+    return (
+      <FormGroup>
+        { Object.values(checkboxes).map((checkbox) => 
+          <FormControlLabel
+            key={checkbox.key}
+            label={checkbox.label}
+            control={
+              <Checkbox
+                name={checkbox.name}
+                checked={checkedItems[checkbox.name].checked}
+                onChange={handleChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+            }
+        />
+        )}
+      </FormGroup>
+    )
+}
+
+
 function BigsiDialog({
   model,
   handleClose,
@@ -142,7 +194,7 @@ function BigsiDialog({
   const session = getSession(model)
   const [error, setError] = useState<Error>()
   const [sequence, setSequence] = useState('')
-  const loading = Boolean(!sequence) || Boolean(error)
+  const [loading, setLoading] = useState(false)
   const { leftOffset, rightOffset } = model
 
   // avoid infinite looping of useEffect
@@ -153,39 +205,37 @@ function BigsiDialog({
     [model, leftOffset, rightOffset],
   )
 
-  console.log('queryRegion', queryRegion)
-
-  useEffect(() => {
+  const runSearch = async (checkboxes) => {
     let active = true
-
-    ;(async () => {
-      try {
-        if (queryRegion.length > 0) {
-          const results = await fetchSequence(model, queryRegion)
-          const data = results.map(result => result.get('seq'))
-          const querySequence = (data.join(''))
-          console.log('data', data)
-          if (active) {
-            console.log('querySequence', querySequence.length)
-            const rawHits = await getBigsiRawHits(model, querySequence)
-            constructBigsiTrack(model, rawHits)
-            setSequence(querySequence)
-          }
-        } else {
-          throw new Error('Selected region is out of bounds')
-        }
-      } catch (e) {
-        console.error(e)
-        if (active) {
-          setError(e)
+    for (const checkbox of Object.keys(checkboxes)) {
+      if (checkboxes[checkbox].checked) {
+        const bigsiName = checkboxes[checkbox].path
+        try {
+            if (queryRegion.length > 0) {
+            const results = await fetchSequence(model, queryRegion)
+            const data = results.map(result => result.get('seq'))
+            const querySequence = (data.join(''))
+            if (active) {
+                const rawHits = await getBigsiRawHits(model, querySequence, bigsiName)
+                constructBigsiTrack(model, rawHits)
+                //setSequence(querySequence)
+                setLoading(false)
+            }
+            } else {
+            throw new Error('Selected region is out of bounds')
+            }
+        } catch (e) {
+            console.error(e)
+            if (active) {
+              setError(e)
+            }
         }
       }
-    })()
-
+    }
     return () => {
       active = false
     }
-  }, [model, session, queryRegion, setSequence])
+  }
 
   const sequenceTooLarge = sequence.length > 300_000
 
@@ -217,6 +267,12 @@ function BigsiDialog({
 
       <DialogContent>
         {error ? <Typography color="error">{`${error}`}</Typography> : null}
+        {!error ? (
+          <>
+          <DialogContentText>Select target reference to search against</DialogContentText>
+          <CheckboxContainer checkboxes={checkboxes}/>
+          </>
+        ) : null}
         {loading && !error ? (
           <Container> 
             Retrieving search hits...
@@ -232,6 +288,19 @@ function BigsiDialog({
         ) : <Container> Query complete! </Container> }
       </DialogContent>
       <DialogActions>
+        <Button
+          onClick={async () => {
+            setLoading(true)
+            await runSearch(checkboxes)
+            //handleClose()
+            model.setOffsets(undefined, undefined)
+          }}
+          color="primary"
+          autoFocus
+        >
+          Run Search
+        </Button>
+
         <Button
           onClick={() => {
             handleClose()

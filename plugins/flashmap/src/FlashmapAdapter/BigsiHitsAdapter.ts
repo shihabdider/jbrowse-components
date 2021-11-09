@@ -36,14 +36,12 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
   }
 
   static hitsToFeatures(rawHits: {}, bucketMap: {}, viewWindow: any) {
-    console.log(bucketMap)
     const numBuckets = 16
     const featureLength = (viewWindow.end - viewWindow.start) / numBuckets
 
     let uniqueId = 0
     const allFeatures: object[] = []
     for (const bucket in rawHits) {
-      console.log('bucket', bucket)
       const startCoord =
         viewWindow.start + (parseInt(bucket) % numBuckets) * featureLength
       const endCoord = startCoord + featureLength - 1

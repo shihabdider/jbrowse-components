@@ -20,8 +20,9 @@ export class BigsiQueryRPC extends RpcMethodType {
 
   async execute(
     args: {
-      querySequence: string
       sessionId: string
+      querySequence: string
+      bigsi: string
     },
     rpcDriverClassName: string,
   ) {
@@ -29,8 +30,8 @@ export class BigsiQueryRPC extends RpcMethodType {
       args,
       rpcDriverClassName,
     )
-    const { querySequence, sessionId } = deserializedArgs
-    const results = await main(querySequence)
+    const { sessionId, querySequence, bigsi } = deserializedArgs
+    const results = await main(querySequence, bigsi)
     console.log('results', results)
     return results
   }

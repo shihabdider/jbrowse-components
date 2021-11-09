@@ -121,14 +121,11 @@ export default class extends Plugin {
     pluginManager.addToExtensionPoint(
       'Core-extendPluggableElement',
       (pluggableElement: PluggableElementType) => {
-        console.log(pluggableElement.name)
         if (pluggableElement.name === 'LinearGenomeView') {
-          console.log('baselinerdisplay', pluggableElement.name)
           const { stateModel } = pluggableElement as ViewType
           const newStateModel = stateModel.extend(
             (self: BaseLinearDisplayModel) => {
               const superContextMenuItems = self.contextMenuItems
-              console.log('contextMenuItem', superContextMenuItems)
               return {
                 views: {
                   contextMenuItems() {

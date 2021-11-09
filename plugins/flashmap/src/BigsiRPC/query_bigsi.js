@@ -246,8 +246,8 @@ async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols)
     return bigsiHits
 }
 
-async function main(querySeq) {
-    const bigsiPath = 'http://localhost:3001/public/hg38_whole_genome.bin'
+async function main(querySeq, bigsi) {
+    const bigsiPath = `http://localhost:3001/public/${bigsi}`
     const response = await fetch(bigsiPath)
     const bigsiBuffer = await response.arrayBuffer()
     console.log('num bytes in the bigsi buffer:', bigsiBuffer.byteLength)
