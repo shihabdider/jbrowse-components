@@ -121,8 +121,8 @@ export default class extends Plugin {
     pluginManager.addToExtensionPoint(
       'Core-extendPluggableElement',
       (pluggableElement: PluggableElementType) => {
-        if (pluggableElement.name === 'LinearGenomeView') {
-          const { stateModel } = pluggableElement as ViewType
+        if (pluggableElement.name === 'LinearBasicDisplay') {
+          const { stateModel } = pluggableElement as DisplayType
           const newStateModel = stateModel.extend(
             (self: BaseLinearDisplayModel) => {
               const superContextMenuItems = self.contextMenuItems
