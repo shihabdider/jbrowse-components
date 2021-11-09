@@ -133,31 +133,28 @@ async function fetchSequence(
   return chunks.map(chunk => chunk[0])
 }
 
-const checkboxes = {
-    hg38: { 
-        name: 'hg38',
-        key: 1,
-        label: 'hg38',
-        path: 'hg38_whole_genome.bin',
-        checked: false,
-    },
-    test: {
-        name: 'test',
-        key: 2,
-        label: 'test',
-        path: 'test.bin',
-        checked: false,
-    }
-}
 
-function CheckboxContainer({checkboxes, ...props}){
-    const [checkedItems, setCheckedItems] = useState(checkboxes)
+function CheckboxContainer({checkboxes, updateSelectedBigsis, ...props}){
+    const initCheckedItems = Object.keys(checkboxes).reduce((acc, curr) => (acc[curr] = false, acc), {})
+    const [checkedItems, setCheckedItems] = useState(initCheckedItems)
 
     const handleChange = (event) => { 
       const { name, checked } = event.target
-      setCheckedItems({...checkedItems, [name]:{checked:checked}})
-      checkboxes[name].checked = checked
+      setCheckedItems({...checkedItems, [name]:checked})
+
     }
+
+    useEffect(() => {
+      const selectedBigsis = []
+      for (const item of Object.keys(checkedItems)){
+        if (checkedItems[item]){
+          selectedBigsis.push(checkboxes[item].path)
+        }
+      }
+      console.log('selectedBigsi', selectedBigsis)
+
+      updateSelectedBigsis(selectedBigsis)
+    }, [checkedItems])
 
     useEffect(() => console.log(checkedItems), [checkedItems])
     
@@ -170,8 +167,9 @@ function CheckboxContainer({checkboxes, ...props}){
             label={checkbox.label}
             control={
               <Checkbox
+                key={checkbox.key}
                 name={checkbox.name}
-                checked={checkedItems[checkbox.name].checked}
+                checked={checkedItems[checkbox.name]}
                 onChange={handleChange}
                 inputProps={{ 'aria-label': 'controlled' }}
               />
@@ -195,6 +193,7 @@ function BigsiDialog({
   const [error, setError] = useState<Error>()
   const [sequence, setSequence] = useState('')
   const [loading, setLoading] = useState(false)
+  const [selectedBigsis, setSelectedBigsis] = useState([])
   const { leftOffset, rightOffset } = model
 
   // avoid infinite looping of useEffect
@@ -205,20 +204,32 @@ function BigsiDialog({
     [model, leftOffset, rightOffset],
   )
 
-  const runSearch = async (checkboxes) => {
+  const checkboxes = {
+      hg38: { 
+          name: 'hg38',
+          key: 1,
+          label: 'hg38',
+          path: 'hg38_whole_genome.bin',
+      },
+      hg38_chr1: {
+          name: 'hg38_chr1',
+          key: 2,
+          label: 'hg38 Chromosome 1 only',
+          path: 'hg38_chr1.bin',
+      }
+  }
+
+  const runSearch = async () => {
     let active = true
-    for (const checkbox of Object.keys(checkboxes)) {
-      if (checkboxes[checkbox].checked) {
-        const bigsiName = checkboxes[checkbox].path
+    for (const bigsi of selectedBigsis) {
         try {
             if (queryRegion.length > 0) {
             const results = await fetchSequence(model, queryRegion)
             const data = results.map(result => result.get('seq'))
             const querySequence = (data.join(''))
             if (active) {
-                const rawHits = await getBigsiRawHits(model, querySequence, bigsiName)
+                const rawHits = await getBigsiRawHits(model, querySequence, bigsi)
                 constructBigsiTrack(model, rawHits)
-                //setSequence(querySequence)
                 setLoading(false)
             }
             } else {
@@ -231,7 +242,6 @@ function BigsiDialog({
             }
         }
       }
-    }
     return () => {
       active = false
     }
@@ -270,7 +280,7 @@ function BigsiDialog({
         {!error ? (
           <>
           <DialogContentText>Select target reference to search against</DialogContentText>
-          <CheckboxContainer checkboxes={checkboxes}/>
+          <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
           </>
         ) : null}
         {loading && !error ? (
@@ -285,15 +295,17 @@ function BigsiDialog({
               disableShrink
             />
           </Container>
-        ) : <Container> Query complete! </Container> }
+        ) : null }
       </DialogContent>
       <DialogActions>
         <Button
           onClick={async () => {
-            setLoading(true)
-            await runSearch(checkboxes)
-            //handleClose()
-            model.setOffsets(undefined, undefined)
+            if (selectedBigsis.length){
+                setLoading(true)
+                await runSearch()
+                model.setOffsets(undefined, undefined)
+                handleClose()
+            }
           }}
           color="primary"
           autoFocus
