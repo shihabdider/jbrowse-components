@@ -26,16 +26,23 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
     const rawHits = readConfObject(config, 'rawHits')
     const bucketMapPath = readConfObject(config, 'bigsiBucketMapPath')
     const viewWindow = readConfObject(config, 'viewWindow')
+    const querySeq = readConfObject(config, 'querySeq')
 
     const features = BigsiHitsAdapter.hitsToFeatures(
       rawHits,
       bucketMap,
       viewWindow,
+      querySeq,
     )
     this.features = BigsiHitsAdapter.makeFeatures(features || [])
   }
 
-  static hitsToFeatures(rawHits: {}, bucketMap: {}, viewWindow: any) {
+  static hitsToFeatures(
+    rawHits: {},
+    bucketMap: {},
+    viewWindow: any,
+    querySeq: string,
+  ) {
     const numBuckets = 16
     const featureLength = (viewWindow.end - viewWindow.start) / numBuckets
 
@@ -55,8 +62,8 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
         name: `${bucketMap[bucket].refName}:${bucketMap[bucket].bucketStart}-${bucketMap[bucket].bucketEnd}`,
         hits: rawHits[bucket].hits,
         score: rawHits[bucket].score,
+        querySequence: querySeq,
       }
-      console.log(bigsiFeatures)
       allFeatures.push(bigsiFeatures)
       uniqueId++
     }

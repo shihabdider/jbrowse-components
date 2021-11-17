@@ -12,6 +12,11 @@ export const BigsiHitsSchema = ConfigurationSchema(
       description: 'file path to bigsi bucket map',
       defaultValue: '',
     },
+    querySeq: {
+      type: 'string',
+      description: 'the query sequence',
+      defaultValue: '',
+    },
     viewWindow: {
       type: 'frozen',
       description:

@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-async function getBigsiRawHits(
+async function getMashmapRawHits(
   model: any,
   querySequence: string,
   bigsi: string,
@@ -197,7 +197,6 @@ function BigsiDialog({
   const [loading, setLoading] = useState(false)
   const [selectedBigsis, setSelectedBigsis] = useState([])
   const { leftOffset, rightOffset } = model
-  console.log('offset struct', leftOffset, rightOffset)
 
   // avoid infinite looping of useEffect
   // random note: the current selected region can't be a computed because it
