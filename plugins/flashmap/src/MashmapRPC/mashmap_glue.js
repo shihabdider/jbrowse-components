@@ -1,5 +1,10 @@
 import createModule from './mashmap_module.js'
 
+function processMashmapResults(results){
+
+    console.log(results.split(' '))
+}
+
 async function main(ref, query){
     const Module = await createModule()
     console.log(Module)

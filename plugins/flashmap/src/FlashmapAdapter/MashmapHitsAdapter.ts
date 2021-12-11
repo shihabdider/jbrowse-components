@@ -30,7 +30,7 @@ export default class MashmapHitsAdapter extends BaseFeatureDataAdapter {
 
   private assemblyNames: string[]
 
-  private rawHits: string[]
+  private rawHits: string
 
   public static capabilities = ['getFeatures', 'getRefNames']
 
@@ -66,7 +66,7 @@ export default class MashmapHitsAdapter extends BaseFeatureDataAdapter {
         ] = line.split(' ')
 
         const rest = Object.fromEntries(
-          fields.map((field) => {
+          fields.map(field => {
             const r = field.indexOf(':')
             const fieldName = field.slice(0, r)
             const fieldValue = field.slice(r + 3)
@@ -103,15 +103,15 @@ export default class MashmapHitsAdapter extends BaseFeatureDataAdapter {
   }
 
   getFeatures(region: Region, opts: BaseOptions = {}) {
-    return ObservableCreate<Feature>(async (observer) => {
-      const pafRecords = await this.cache.get('initialize', opts, opts.signal)
+    return ObservableCreate<Feature>(async observer => {
+      const mashmapRecords = await this.cache.get('initialize', opts, opts.signal)
 
       // The index of the assembly name in the region list corresponds to
       // the adapter in the subadapters list
       const index = this.assemblyNames.indexOf(region.assemblyName)
       if (index !== -1) {
-        for (let i = 0; i < pafRecords.length; i++) {
-          const { extra, records } = pafRecords[i]
+        for (let i = 0; i < mashmapRecords.length; i++) {
+          const { extra, records } = mashmapRecords[i]
           const { start, end, refName } = records[index]
           if (records[index].refName === region.refName) {
             if (doesIntersect2(region.start, region.end, start, end)) {

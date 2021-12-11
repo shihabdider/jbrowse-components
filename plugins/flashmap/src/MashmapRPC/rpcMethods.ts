@@ -30,7 +30,6 @@ export class MashmapQueryRPC extends RpcMethodType {
       querySequence.length,
     )
     const results = await main(refSequence, querySequence)
-    console.log(results.split(' '))
     return results
   }
 }

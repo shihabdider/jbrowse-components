@@ -28,6 +28,7 @@ import {
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 
 import BigsiDialog from './components/BigsiDialog'
+import MashmapDialog from './components/MashmapDialog'
 import SequenceSearchButton from './components/SequenceSearchButton'
 import MyDialog from './components/MyDialog'
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
@@ -37,7 +38,6 @@ async function getBucketSequence(
   model: any,
   bucketRegion: { leftOffset: number; rightOffset: number },
 ) {
-  console.log('bucketRegion', bucketRegion)
   const session = getSession(model)
   const { rpcManager, assemblyManager } = session
   const leftOffset = { offset: bucketRegion.leftOffset, index: 0 }
@@ -46,7 +46,6 @@ async function getBucketSequence(
     leftOffset,
     rightOffset,
   )
-  console.log('regions', selectedRegions)
   const sessionId = 'getBucketSequence'
   const assemblyName = 'hg38'
   const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
@@ -60,8 +59,6 @@ async function getBucketSequence(
       }),
     ),
   )) as Feature[][]
-
-  console.log('chunks', chunks)
 
   // assumes that we get whole sequence in a single getFeatures call
   return chunks.map(chunk => chunk[0])
@@ -186,51 +183,29 @@ export default class extends Plugin {
               return {
                 views: {
                   contextMenuItems() {
-                    const newContextMenuItems = [
+                    const feature = self.contextMenuFeature
+                    if (!feature) {
+                      // we're not adding any menu items since the click was not
+                      // on a feature
+                      return superContextMenuItems()
+                    }
+                    return [
                       ...superContextMenuItems(),
                       {
                         label: 'Refined sequence search',
                         icon: ZoomInIcon,
-                        onClick: async () => {
-                          if (self.contextMenuFeature) {
-                            const bucketOffsets = {
-                              leftOffset: self.contextMenuFeature.get(
-                                'bucketStart',
-                              ),
-                              rightOffset: self.contextMenuFeature.get(
-                                'bucketEnd',
-                              ),
-                              query: self.contextMenuFeature.get(
-                                'querySequence',
-                              ),
-                            }
-
-                            console.log(
-                              'offset length',
-                              bucketOffsets['rightOffset'] -
-                                bucketOffsets['leftOffset'],
-                            )
-
-                            const bucketSeq = await getBucketSequence(
-                              lgv,
-                              bucketOffsets,
-                            )
-
-                            console.log('bucketSeq', bucketSeq)
-
-                            const sequences = {
-                              ref: bucketSeq[0].get('seq'),
-                              query: bucketOffsets.query,
-                            }
-
-                            console.log('ref seq size:', sequences.ref.length)
-                            const response = await runMashmap(lgv, sequences)
-                          }
+                        onClick: () => {
+                          getSession(self).queueDialog(doneCallback => [
+                            MashmapDialog,
+                            {
+                              model: lgv,
+                              feature: feature,
+                              handleClose: doneCallback,
+                            },
+                          ])
                         },
                       },
                     ]
-
-                    return newContextMenuItems
                   },
                 },
               }

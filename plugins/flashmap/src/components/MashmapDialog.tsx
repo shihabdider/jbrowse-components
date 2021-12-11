@@ -23,6 +23,11 @@ import CloseIcon from '@material-ui/icons/Close'
 import { getSession } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
 
+import {
+  LinearGenomeViewModel,
+  BaseLinearDisplayModel,
+} from '@jbrowse/plugin-linear-genome-view'
+
 const useStyles = makeStyles(theme => ({
   loadingMessage: {
     padding: theme.spacing(5),
@@ -41,85 +46,24 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-
-async function getMashmapRawHits(
-  model: any,
-  querySequence: string,
-  bigsi: string,
-) : object[] {
-  const session = getSession(model)
-  const { rpcManager } = session
-
-  const sessionId = 'bigsiQuery'
-
-  const params = {
-    sessionId,
-    querySequence,
-    bigsi,
-  }
-
-  const response = await rpcManager.call(
-        sessionId,
-        "BigsiQueryRPC",
-        params
-  ) 
-
-  return response
-  };
-       
-
-function constructBigsiTrack(
-    self: any,
-    rawHits: object[],
-    querySequence: string,
-){
-    const refName =
-      self.leftOffset?.refName || self.rightOffset?.refName || ''
-
-    const assemblyName = 
-      self.leftOffset?.assemblyName || self.rightOffset?.assemblyName
-
-    const bigsiBucketMapPath = '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
-
-    const bigsiQueryTrack = {
-            trackId: `track-${Date.now()}`,
-            name: `Sequence Search ${assemblyName}:Chr${refName}:${self.leftOffset.coord}-${self.rightOffset.coord}`,
-            assemblyNames: ['hg38'],
-            type: 'FeatureTrack',
-            adapter: {
-                type: 'BigsiHitsAdapter',
-                rawHits: rawHits,
-                bigsiBucketMapPath: bigsiBucketMapPath,
-                viewWindow: {refName: refName, start: self.leftOffset.coord, end: self.rightOffset.coord},
-                querySeq: querySequence,
-                },
-            }
-
-    const session = getSession(self)
-    session.addTrackConf(bigsiQueryTrack)
-
-    self.showTrack(bigsiQueryTrack.trackId)
-}
-
-/**
- * Fetches and returns a list features for a given list of regions
- * @param selectedRegions - Region[]
- * @returns Features[]
- */
-async function fetchSequence(
-  self: any,
-  selectedRegions: Region[],
+async function getBucketSequence(
+  model: LinearGenomeViewModel,
+  bucketRegion: { leftOffset: number; rightOffset: number },
 ) {
-  const session = getSession(self)
-  const assemblyName =
-    self.leftOffset?.assemblyName || self.rightOffset?.assemblyName || ''
+  console.log('bucketRegion', bucketRegion)
+  const session = getSession(model)
   const { rpcManager, assemblyManager } = session
+  const leftOffset = { offset: bucketRegion.leftOffset, index: 0 }
+  const rightOffset = { offset: bucketRegion.rightOffset, index: 0 }
+  const selectedRegions: Region[] = model.getSelectedRegions(
+    leftOffset,
+    rightOffset,
+  )
+  console.log('regions', selectedRegions)
+  const sessionId = 'getBucketSequence'
+  const assemblyName = 'hg38'
   const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
-
-  // assembly configuration
   const adapterConfig = readConfObject(assemblyConfig, ['sequence', 'adapter'])
-
-  const sessionId = 'getSequence'
   const chunks = (await Promise.all(
     selectedRegions.map(region =>
       rpcManager.call(sessionId, 'CoreGetFeatures', {
@@ -130,130 +74,125 @@ async function fetchSequence(
     ),
   )) as Feature[][]
 
-
   // assumes that we get whole sequence in a single getFeatures call
   return chunks.map(chunk => chunk[0])
 }
 
+async function getMashmapRawHits(
+  model: any,
+  sequences: { ref: string; query: string },
+) {
+  const session = getSession(model)
+  const { rpcManager } = session
 
-function CheckboxContainer({checkboxes, updateSelectedBigsis, ...props}){
-    const initCheckedItems = Object.keys(checkboxes).reduce((acc, curr) => (acc[curr] = false, acc), {})
-    const [checkedItems, setCheckedItems] = useState(initCheckedItems)
+  const sessionId = 'mashmapQuery'
+  const { ref, query } = sequences
 
-    const handleChange = (event) => { 
-      const { name, checked } = event.target
-      setCheckedItems({...checkedItems, [name]:checked})
+  const params = {
+    sessionId,
+    ref,
+    query,
+  }
 
-    }
+  const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
 
-    useEffect(() => {
-      const selectedBigsis = []
-      for (const item of Object.keys(checkedItems)){
-        if (checkedItems[item]){
-          selectedBigsis.push(checkboxes[item].path)
+  return response
+}
+
+function constructMashmapTrack(
+    model: LinearGenomeViewModel,
+    rawHits: string,
+    refSeq: string,
+){
+    const mashmapQueryTrack = {
+            trackId: `track-${Date.now()}`,
+            name: `Mashmap Sequence Search`,
+            assemblyNames: ['hg38'],
+            type: 'FeatureTrack',
+            adapter: {
+                type: 'MashmapHitsAdapter',
+                rawHits: rawHits,
+                assemblyNames: ['hg38', 'hg38'],
+            },
         }
-      }
-      console.log('selectedBigsi', selectedBigsis)
 
-      updateSelectedBigsis(selectedBigsis)
-    }, [checkedItems])
+    const session = getSession(model)
+    session.addAssembly?.({
+        name: 'Search reference sequence',
+        sequence: {
+          type: 'ReferenceSequenceTrack',
+          trackId: `track-${Date.now()}`,
+          assemblyNames: ['hg38'],
+          adapter: {
+            type: 'FromConfigSequenceAdapter',
+            noAssemblyManager: true,
+            features: [
+              {
+                start: 0,
+                end: refSeq.length,
+                seq: refSeq,
+                refName: 1,
+                uniqueId: `${Math.random()}`,
+              },
+            ],
+          },
+        },
+      })
+    console.log(mashmapQueryTrack)
+    //session.addTrackConf(mashmapQueryTrack)
 
-    useEffect(() => console.log(checkedItems), [checkedItems])
-    
-
-    return (
-      <FormGroup>
-        { Object.values(checkboxes).map((checkbox) => 
-          <FormControlLabel
-            key={checkbox.key}
-            label={checkbox.label}
-            control={
-              <Checkbox
-                key={checkbox.key}
-                name={checkbox.name}
-                checked={checkedItems[checkbox.name]}
-                onChange={handleChange}
-                inputProps={{ 'aria-label': 'controlled' }}
-              />
-            }
-        />
-        )}
-      </FormGroup>
-    )
+    //model.showTrack(mashmapQueryTrack.trackId)
 }
 
 
-function BigsiDialog({
+function MashmapDialog({
   model,
   handleClose,
+  feature,
 }: {
-  model: any
+  model: LinearGenomeViewModel
   handleClose: () => void
+  feature: Feature
 }) {
   const classes = useStyles()
   const session = getSession(model)
   const [error, setError] = useState<Error>()
-  const [sequence, setSequence] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [selectedBigsis, setSelectedBigsis] = useState([])
-  const { leftOffset, rightOffset } = model
+  const [loading, setLoading] = useState('')
+  const [output, setOutput] = useState('')
+  const [bucketStart, bucketEnd] = [feature.get('bucketStart'), feature.get('bucketEnd')]
+  const querySequence = feature.get('querySequence')
 
-  // avoid infinite looping of useEffect
-  // random note: the current selected region can't be a computed because it
-  // uses action on base1dview even though it's on the ephemeral base1dview
-  const queryRegion = useMemo(
-    () => model.getSelectedRegions(leftOffset, rightOffset),
-    [model, leftOffset, rightOffset],
-  )
-
-  const checkboxes = {
-      hg38: { 
-          name: 'hg38',
-          key: 1,
-          label: 'hg38',
-          path: 'hg38_whole_genome.bin',
-      },
-      hg38_chr1: {
-          name: 'hg38_chr1',
-          key: 2,
-          label: 'hg38 Chromosome 1 only',
-          path: 'hg38_chr1.bin',
-      }
-  }
-
-  const runSearch = async () => {
-    let active = true
-    for (const bigsi of selectedBigsis) {
-        try {
-            if (queryRegion.length > 0) {
-            const results = await fetchSequence(model, queryRegion)
-            const data = results.map(result => result.get('seq'))
-            const querySequence = (data.join(''))
-            if (active) {
-                const rawHits = await getBigsiRawHits(model, querySequence, bigsi)
-                constructBigsiTrack(model, rawHits, querySequence)
-                setLoading(false)
-            }
-            } else {
-            throw new Error('Selected region is out of bounds')
-            }
-        } catch (e) {
-            console.error(e)
-            if (active) {
-              setError(e)
-            }
-        }
-      }
-    return () => {
-      active = false
+  async function handleMashmapQuery(){
+    setLoading('Extracting bucket sequence and query sequence...')
+    // get reference sequence
+    const bucketCoords = {
+        leftOffset: feature.get('bucketStart'),
+        rightOffset: feature.get('bucketEnd'),
     }
+    const refSeq = await getBucketSequence(model, bucketCoords)
+    // pass ref and query to mashmap rpc
+    const sequences = {
+        ref: refSeq[0].get('seq'),
+        query: querySequence
+    }
+    setLoading('Running MashMap for refined sequence search...')
+    const mashmapHits = await getMashmapRawHits(model, sequences)
+    setLoading('')
+    setOutput(mashmapHits)
+    // clean up mashmap output via data adapter
+    constructMashmapTrack(model, mashmapHits, sequences.query)
+    // summon synteny view with mashmap results
+    // close dialog
+    //handleClose()
   }
 
-  const sequenceTooLarge = sequence.length > 300_000
+  useEffect(() => {
+    handleMashmapQuery()
+  }, [])
 
   return (
     <Dialog
-      data-testid="bigsi-dialog"
+      data-testid="mashmap-dialog"
       maxWidth="xl"
       open
       onClose={handleClose}
@@ -261,14 +200,13 @@ function BigsiDialog({
       aria-describedby="alert-dialog-description"
     >
       <DialogTitle id="alert-dialog-title">
-        Sequence Search
+        Refined Sequence Search
         {handleClose ? (
           <IconButton
             data-testid="close-BigsiDialog"
             className={classes.closeButton}
             onClick={() => {
               handleClose()
-              model.setOffsets(undefined, undefined)
             }}
           >
             <CloseIcon />
@@ -279,16 +217,9 @@ function BigsiDialog({
 
       <DialogContent>
         {error ? <Typography color="error">{`${error}`}</Typography> : null}
-        {!error ? (
-          <>
-          <DialogContentText>Select target reference to search against</DialogContentText>
-          <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
-          </>
-        ) : null}
         {loading && !error ? (
           <Container> 
-            Retrieving search hits...
-
+            {loading}
             <CircularProgress
               style={{
                 marginLeft: 10,
@@ -298,36 +229,10 @@ function BigsiDialog({
             />
           </Container>
         ) : null }
+        {output ? (<DialogContentText>{output}</DialogContentText>) : null}
       </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={async () => {
-            if (selectedBigsis.length){
-                setLoading(true)
-                await runSearch()
-                model.setOffsets(undefined, undefined)
-                handleClose()
-            }
-          }}
-          color="primary"
-          autoFocus
-        >
-          Run Search
-        </Button>
-
-        <Button
-          onClick={() => {
-            handleClose()
-            model.setOffsets(undefined, undefined)
-          }}
-          color="primary"
-          autoFocus
-        >
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }
 
-export default observer(BigsiDialog)
+export default observer(MashmapDialog)

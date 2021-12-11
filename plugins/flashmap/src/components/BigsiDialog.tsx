@@ -84,7 +84,7 @@ function constructBigsiTrack(
     const bigsiQueryTrack = {
             trackId: `track-${Date.now()}`,
             name: `Sequence Search ${assemblyName}:Chr${refName}:${self.leftOffset.coord}-${self.rightOffset.coord}`,
-            assemblyNames: ['hg38'],
+            assemblyNames: [assemblyName],
             type: 'FeatureTrack',
             adapter: {
                 type: 'BigsiHitsAdapter',
@@ -197,7 +197,6 @@ function BigsiDialog({
   const [loading, setLoading] = useState(false)
   const [selectedBigsis, setSelectedBigsis] = useState([])
   const { leftOffset, rightOffset } = model
-  console.log('offset struct', leftOffset, rightOffset)
 
   // avoid infinite looping of useEffect
   // random note: the current selected region can't be a computed because it
