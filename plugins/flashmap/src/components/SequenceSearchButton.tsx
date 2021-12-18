@@ -52,7 +52,7 @@ function makeBigsiHitsFeatures(
 
   let uniqueId = 0
   const allFeatures = []
-  for (let bucket in response) {
+  for (let bucket: number in response) {
     const bigsiFeatures = response[bucket]
     bigsiFeatures.uniqueId = uniqueId
     bigsiFeatures.bucketStart = bucketmap[bucket].bucketStart

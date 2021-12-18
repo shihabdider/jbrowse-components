@@ -1,0 +1,14 @@
+{
+  "hg38": {
+    "exactMatch": {
+      "path": "http://localhost:3001/public/hg38_whole_genome_exact.bin",
+      "numRows": 705000,
+      "numCols": 384
+    },
+    "inexactMatch": {
+      "path": "http://localhost:3001/public/hg38_whole_genome.bin",
+      "numRows": 328000,
+      "numCols": 384
+    }
+  }
+}

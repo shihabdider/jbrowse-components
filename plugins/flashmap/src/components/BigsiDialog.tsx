@@ -150,7 +150,7 @@ function CheckboxContainer({checkboxes, updateSelectedBigsis, ...props}){
       const selectedBigsis = []
       for (const item of Object.keys(checkedItems)){
         if (checkedItems[item]){
-          selectedBigsis.push(checkboxes[item].path)
+          selectedBigsis.push(checkboxes[item].name)
         }
       }
       console.log('selectedBigsi', selectedBigsis)
@@ -210,15 +210,8 @@ function BigsiDialog({
       hg38: { 
           name: 'hg38',
           key: 1,
-          label: 'hg38',
-          path: 'hg38_whole_genome.bin',
+          label: 'hg38 - whole genome assembly',
       },
-      hg38_chr1: {
-          name: 'hg38_chr1',
-          key: 2,
-          label: 'hg38 Chromosome 1 only',
-          path: 'hg38_chr1.bin',
-      }
   }
 
   const runSearch = async () => {
