@@ -7,7 +7,7 @@
     },
     "inexactMatch": {
       "path": "http://localhost:3001/public/hg38_whole_genome.bin",
-      "numRows": 328000,
+      "numRows": 293000,
       "numCols": 384
     }
   }

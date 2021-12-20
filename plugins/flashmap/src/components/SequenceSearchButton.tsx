@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
 import { getRoot } from 'mobx-state-tree'
 import { FileSelector } from '@jbrowse/core/ui'
-import bucketmap from '../BigsiRPC/bigsi-maps/hg38_chr1_bucket_map.json'
+import bucketmap from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 import {
@@ -54,7 +54,7 @@ function makeBigsiHitsFeatures(
 
   let uniqueId = 0
   const allFeatures = []
-  for (let bucket of response) {
+  for (const bucket in response) {
     const bigsiFeatures = response[bucket]
     bigsiFeatures.uniqueId = uniqueId
     bigsiFeatures.bucketStart = bucketmap[bucket].bucketStart
@@ -79,18 +79,21 @@ function cleanSequence(sequence: string){
 function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
   const session = getSession(model)
-  const { rpcManager, assemblyManager } = session
+  const { rpcManager, assemblyNames } = session
 
   const [trigger, setTrigger] = useState(false);
   const [sequence, setSequence] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [results, setResults] = useState();
+  const bigsiName = 'hg38'
 
   async function runBigsiQuery(){
     const sessionId = 'bigsiQuery'
     const querySequence = cleanSequence(sequence)
     const params = {
         sessionId,
-        querySequence
+        querySequence,
+        bigsiName 
     }
     const results = await rpcManager.call(
     sessionId,
@@ -100,18 +103,25 @@ function SequenceSearchButton({ model }: { model: any }) {
     console.log(results);
     setResults(results);
     const allFeatures = makeBigsiHitsFeatures(model, results)
-    console.log('bucket map', allFeatures)
     setTrigger(false) // closes the dialog if you want, or skip this and display the results in the dialog
   }
   
-  function handleFileChange(event){
-      const file = event.target.files[0]
-      const reader = new FileReader()
-      reader.readAsText(file)
-      reader.onload = () => {
-        setSequence(reader.result)
+  function handleFileChange(event) {
+      if (event.target.files) {
+        const file = event.target.files[0]
+        
+        if (file.size >= 500 && file.size <= 300*1024) {
+            const reader = new FileReader()
+            reader.readAsText(file)
+            reader.onload = () => {
+              setSequence(reader.result)
+            }
+        } else {
+            setErrorMessage('Sequence must be between 500bp and 300Kbp.')
+        }
       }
   }
+
   return (
     <>
       <Button
@@ -142,6 +152,7 @@ function SequenceSearchButton({ model }: { model: any }) {
               <DialogContentText>
                 Paste your sequence below to search against the reference or upload a FASTA file.
               </DialogContentText>
+              {errorMessage ? (<DialogContentText> {errorMessage} </DialogContentText>) : null }
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>
             <TextField
@@ -149,8 +160,8 @@ function SequenceSearchButton({ model }: { model: any }) {
                 variant="outlined"
                 value={sequence}
                 multiline
-                rows={3}
-                rowsMax={5}
+                minRows={3}
+                maxRows={5}
                 fullWidth
                 className={classes.dialogContent}
                 onChange={() => { 
@@ -170,7 +181,7 @@ function SequenceSearchButton({ model }: { model: any }) {
             Submit
             </Button>
 
-            <Button onClick={() => setTrigger(false)} color="primary" autoFocus>
+            <Button onClick={() => {setTrigger(false), setSequence(''), setErrorMessage('')}} color="primary" autoFocus>
               Close
             </Button>
           </DialogActions>

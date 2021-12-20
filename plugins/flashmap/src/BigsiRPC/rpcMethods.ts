@@ -30,7 +30,8 @@ export class BigsiQueryRPC extends RpcMethodType {
       args,
       rpcDriverClassName,
     )
-    const { sessionId, querySequence, bigsiName, } = deserializedArgs
+    const { sessionId, querySequence, bigsiName } = deserializedArgs
+    console.log('inside rpc bigsiName:', bigsiName)
 
     const results = await main(querySequence, bigsiName)
     return results

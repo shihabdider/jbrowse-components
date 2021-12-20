@@ -45,8 +45,8 @@ const useStyles = makeStyles(theme => ({
 async function getBigsiRawHits(
   model: any,
   querySequence: string,
-  bigsi: string,
-) : object[] {
+  bigsiName: string,
+) {
   const session = getSession(model)
   const { rpcManager } = session
 
@@ -55,7 +55,7 @@ async function getBigsiRawHits(
   const params = {
     sessionId,
     querySequence,
-    bigsi,
+    bigsiName,
   }
 
   const response = await rpcManager.call(
@@ -216,14 +216,14 @@ function BigsiDialog({
 
   const runSearch = async () => {
     let active = true
-    for (const bigsi of selectedBigsis) {
+    for (const bigsiName of selectedBigsis) {
         try {
             if (queryRegion.length > 0) {
             const results = await fetchSequence(model, queryRegion)
             const data = results.map(result => result.get('seq'))
             const querySequence = (data.join(''))
             if (active) {
-                const rawHits = await getBigsiRawHits(model, querySequence, bigsi)
+                const rawHits = await getBigsiRawHits(model, querySequence, bigsiName)
                 constructBigsiTrack(model, rawHits, querySequence)
                 setLoading(false)
             }
