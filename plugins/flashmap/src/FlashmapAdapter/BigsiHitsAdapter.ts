@@ -8,7 +8,7 @@ import { NoAssemblyRegion } from '@jbrowse/core/util/types'
 import { readConfObject } from '@jbrowse/core/configuration'
 import { ConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { BigsiHitsSchema as BigsiHitsAdapterBigsiHitsSchema } from './configSchema'
-import bucketMap from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 /**
  * Adapter that just returns the features defined in its `features` configuration
@@ -27,6 +27,7 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
     const bucketMapPath = readConfObject(config, 'bigsiBucketMapPath')
     const viewWindow = readConfObject(config, 'viewWindow')
     const querySeq = readConfObject(config, 'querySeq')
+    const bucketMap = hg38BigsiConfig.bucketMap
 
     const features = BigsiHitsAdapter.hitsToFeatures(
       rawHits,
@@ -39,7 +40,7 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
 
   static hitsToFeatures(
     rawHits: {},
-    bucketMap: {},
+    bucketMap: [],
     viewWindow: any,
     querySeq: string,
   ) {
@@ -52,16 +53,17 @@ export default class BigsiHitsAdapter extends BaseFeatureDataAdapter {
       const startCoord =
         viewWindow.start + (parseInt(bucket) % numBuckets) * featureLength
       const endCoord = startCoord + featureLength - 1
+      const bucketNum = parseInt(bucket)
       const bigsiFeatures = {
         uniqueId: uniqueId,
         refName: viewWindow.refName,
         start: startCoord,
         end: endCoord,
-        bucketStart: bucketMap[bucket].bucketStart,
-        bucketEnd: bucketMap[bucket].bucketEnd,
-        name: `${bucketMap[bucket].refName}:${bucketMap[bucket].bucketStart}-${bucketMap[bucket].bucketEnd}`,
-        hits: rawHits[bucket].hits,
-        score: rawHits[bucket].score,
+        bucketStart: bucketMap[bucketNum].bucketStart,
+        bucketEnd: bucketMap[bucketNum].bucketEnd,
+        name: `${bucketMap[bucketNum].refName}:${bucketMap[bucketNum].bucketStart}-${bucketMap[bucketNum].bucketEnd}`,
+        hits: rawHits[bucketNum].hits,
+        score: rawHits[bucketNum].score,
         querySequence: querySeq,
       }
       allFeatures.push(bigsiFeatures)

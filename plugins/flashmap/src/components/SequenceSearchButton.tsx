@@ -8,10 +8,12 @@ import { makeStyles } from '@material-ui/core/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
 import { getRoot } from 'mobx-state-tree'
 import { FileSelector } from '@jbrowse/core/ui'
-import bucketmap from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 import {
+  CircularProgress,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
@@ -54,12 +56,15 @@ function makeBigsiHitsFeatures(
 
   let uniqueId = 0
   const allFeatures = []
+  const bucketmap = hg38BigsiConfig.bucketMap
+  console.log(response)
   for (const bucket in response) {
-    const bigsiFeatures = response[bucket]
+    const bucketNum = parseInt(bucket)
+    const bigsiFeatures = response[bucketNum]
     bigsiFeatures.uniqueId = uniqueId
-    bigsiFeatures.bucketStart = bucketmap[bucket].bucketStart
-    bigsiFeatures.bucketEnd = bucketmap[bucket].bucketEnd
-    bigsiFeatures.name = `${bucketmap[bucket].refName}:${bucketmap[bucket].bucketStart}-${bucketmap[bucket].bucketEnd}`
+    bigsiFeatures.bucketStart = bucketmap[bucketNum].bucketStart
+    bigsiFeatures.bucketEnd = bucketmap[bucketNum].bucketEnd
+    bigsiFeatures.name = `${bucketmap[bucketNum].refName}:${bucketmap[bucketNum].bucketStart}-${bucketmap[bucketNum].bucketEnd}`
     bigsiFeatures.refName = refName
     allFeatures.push(bigsiFeatures)
     uniqueId++
@@ -80,12 +85,21 @@ function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
   const session = getSession(model)
   const { rpcManager, assemblyNames } = session
+  const bigsiName = 'hg38'
 
   const [trigger, setTrigger] = useState(false);
-  const [sequence, setSequence] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [sequence, setSequence] = useState('');
   const [results, setResults] = useState();
-  const bigsiName = 'hg38'
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<Error>()
+
+  function handleClose() {
+    setLoading(false)
+    setError(undefined)
+    setSequence('')
+    setResults(undefined)
+    setTrigger(false)
+  }
 
   async function runBigsiQuery(){
     const sessionId = 'bigsiQuery'
@@ -100,13 +114,11 @@ function SequenceSearchButton({ model }: { model: any }) {
     "BigsiQueryRPC",
     params
     );
-    console.log(results);
-    setResults(results);
     const allFeatures = makeBigsiHitsFeatures(model, results)
-    setTrigger(false) // closes the dialog if you want, or skip this and display the results in the dialog
+    console.log(allFeatures)
   }
   
-  function handleFileChange(event) {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
       if (event.target.files) {
         const file = event.target.files[0]
         
@@ -114,10 +126,15 @@ function SequenceSearchButton({ model }: { model: any }) {
             const reader = new FileReader()
             reader.readAsText(file)
             reader.onload = () => {
-              setSequence(reader.result)
+              if (typeof reader.result === 'string') {
+                const uploadedSeq: string = reader.result
+                setSequence(uploadedSeq)
+              } else {
+                setError(new Error('Sequence must be a valid FASTA file'))
+              }
             }
         } else {
-            setErrorMessage('Sequence must be between 500bp and 300Kbp.')
+            setError(new Error('Sequence must be between 500bp and 300Kbp.'))
         }
       }
   }
@@ -152,7 +169,7 @@ function SequenceSearchButton({ model }: { model: any }) {
               <DialogContentText>
                 Paste your sequence below to search against the reference or upload a FASTA file.
               </DialogContentText>
-              {errorMessage ? (<DialogContentText> {errorMessage} </DialogContentText>) : null }
+              {error ? (<DialogContentText> {error.message} </DialogContentText>) : null }
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>
             <TextField
@@ -172,16 +189,36 @@ function SequenceSearchButton({ model }: { model: any }) {
                     }
                 }
             />
+
+            {loading && !error ? (
+            <Container> 
+                Retrieving search hits...
+
+                <CircularProgress
+                style={{
+                    marginLeft: 10,
+                }}
+                size={20}
+                disableShrink
+                />
+            </Container>
+            ) : null }
             </DialogContent>
         </>
         <DialogActions>
             <Button
-            onClick={runBigsiQuery}
+              onClick={
+                async () => {
+                  setLoading(true)
+                  await runBigsiQuery(); 
+                  handleClose() 
+                }
+              }
             >
             Submit
             </Button>
 
-            <Button onClick={() => {setTrigger(false), setSequence(''), setErrorMessage('')}} color="primary" autoFocus>
+            <Button onClick={handleClose} color="primary" autoFocus>
               Close
             </Button>
           </DialogActions>

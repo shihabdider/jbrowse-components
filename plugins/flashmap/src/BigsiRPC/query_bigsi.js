@@ -262,7 +262,7 @@ async function nonFragQuery(querySeq, bigsiName){
 async function main(querySeq, bigsiName) {
     let filteredBigsiHits 
     const querySize = querySeq.length
-    if (querySize >=500 && querySize < 5000) {
+    if ((querySize >=500 && querySize < 5000)) {
         filteredBigsiHits = fragQuery(querySeq, bigsiName)
     } else if (querySize > 5000 && querySize <=300_000) {
         // Test: non-frag query
