@@ -46,7 +46,7 @@ async function getBigsiRawHits(
   model: any,
   querySequence: string,
   bigsiName: string,
-) {
+) : Promise<any> {
   const session = getSession(model)
   const { rpcManager } = session
 
@@ -96,9 +96,13 @@ function constructBigsiTrack(
             }
 
     const session = getSession(self)
-    session.addTrackConf(bigsiQueryTrack)
+    if (session.addTrackConf) {
+      session.addTrackConf(bigsiQueryTrack)
+      self.showTrack(bigsiQueryTrack.trackId)
+    } else {
+      console.error('Session does not allow adding track configurations.')
+    }
 
-    self.showTrack(bigsiQueryTrack.trackId)
 }
 
 /**
@@ -135,12 +139,26 @@ async function fetchSequence(
   return chunks.map(chunk => chunk[0])
 }
 
+interface Checkboxes {
+  [key: string]: { 
+    name: string, 
+    key: number, 
+    label: string 
+  } 
+}
 
-function CheckboxContainer({checkboxes, updateSelectedBigsis, ...props}){
-    const initCheckedItems = Object.keys(checkboxes).reduce((acc, curr) => (acc[curr] = false, acc), {})
+function CheckboxContainer({
+  checkboxes, 
+  updateSelectedBigsis, 
+  ...props
+  } : {
+  checkboxes: Checkboxes,
+  updateSelectedBigsis: React.Dispatch<React.SetStateAction<string[]>>  
+}){
+    const initCheckedItems = Object.fromEntries(Object.keys(checkboxes).map(key => [key, false]))
     const [checkedItems, setCheckedItems] = useState(initCheckedItems)
 
-    const handleChange = (event) => { 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => { 
       const { name, checked } = event.target
       setCheckedItems({...checkedItems, [name]:checked})
 
@@ -192,10 +210,10 @@ function BigsiDialog({
 }) {
   const classes = useStyles()
   const session = getSession(model)
-  const [error, setError] = useState<Error>()
+  const [error, setError] = useState<unknown>()
   const [sequence, setSequence] = useState('')
   const [loading, setLoading] = useState(false)
-  const [selectedBigsis, setSelectedBigsis] = useState([])
+  const [selectedBigsis, setSelectedBigsis] = useState<Array<string>>([])
   const { leftOffset, rightOffset } = model
 
   // avoid infinite looping of useEffect
@@ -206,7 +224,7 @@ function BigsiDialog({
     [model, leftOffset, rightOffset],
   )
 
-  const checkboxes = {
+  const checkboxes: Checkboxes = {
       hg38: { 
           name: 'hg38',
           key: 1,
@@ -230,7 +248,7 @@ function BigsiDialog({
             } else {
             throw new Error('Selected region is out of bounds')
             }
-        } catch (e) {
+        } catch(e) {
             console.error(e)
             if (active) {
               setError(e)
