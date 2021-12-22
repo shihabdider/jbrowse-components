@@ -99,20 +99,29 @@ const FlashmapResultsGrid = observer(
     const flashmapResultsRows = mappedRegions
       .toJS()
       .map((region, index) => {
-        const { id, queryStart, queryEnd, strand, refName, start, end, score  } = region
+        const { id, assemblyName, queryName, queryStart, queryEnd, strand, refName, start, end, score  } = region
         return {
           ...region,
           id: index,
-          queryName: 'Query number ' + id.toString(),
+          queryId: id,
+          queryName: queryName,
           queryStart: queryStart,
           queryEnd: queryEnd,
           strand: strand,
-          locString: assembleLocString({refName, start, end}),
+          locString: assembleLocString({assemblyName, refName, start, end}),
           score: score,
         }
       })
 
     const columns = [
+      {
+        field: 'queryId',
+        headerName: 'ID',
+        width: Math.max(
+          100,
+          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryId'))),
+        ),
+      },
       {
         field: 'queryName',
         headerName: 'Query',
@@ -151,7 +160,6 @@ const FlashmapResultsGrid = observer(
         width: Math.max(...flashmapResultsRows.map(row => measure(row, 'locString'))),
         renderCell: (params: GridCellParams) => {
           const { value } = params
-          console.log(params)
           return (
             <Link
               className={classes.link}

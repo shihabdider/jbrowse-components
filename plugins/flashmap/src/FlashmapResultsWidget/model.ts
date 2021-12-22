@@ -8,6 +8,7 @@ const LabeledRegionModel = types
     RegionModel,
     types.model({
       id: types.number,
+      queryName: types.string,
       queryStart: types.number,
       queryEnd: types.number,
       strand: types.string,

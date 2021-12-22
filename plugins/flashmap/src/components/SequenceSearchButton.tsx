@@ -48,6 +48,9 @@ const useStyles = makeStyles(theme => ({
   dialogContent: {
     width: '80em',
   },
+  errorContent: {
+    color: 'red'
+  }
 }))
 
 
@@ -174,7 +177,8 @@ function parseMashmapResults(rawHits: string) {
 async function activateFlashmapResultsWidget(
   model: LinearGenomeViewModel, 
   allFeatures: any[], 
-  querySeq: string
+  querySeq: string,
+  queryId: number,
   ) {
     const session = getSession(model)
     if (isSessionModelWithWidgets(session)) {
@@ -187,7 +191,8 @@ async function activateFlashmapResultsWidget(
             )
         }
 
-        let id = 1
+        session.showWidget(flashmapResultsWidget)
+
         for (const bin of allFeatures){
             const binCoords = { 
               leftOffset: bin.bucketStart,
@@ -197,21 +202,20 @@ async function activateFlashmapResultsWidget(
             const mashmapHits = parseMashmapResults(mashmapRawHits)
             for (const hit of mashmapHits) {
                 const region = {
-                id: id,
-                assemblyName: 'hg38',
-                queryStart: hit.queryStart,
-                queryEnd: hit.queryEnd,
-                strand: hit.strand,
-                refName: bin.refName,
-                start: bin.bucketStart + hit.refStart,
-                end: bin.bucketStart + hit.refEnd,
-                score: hit.score,
+                    id: queryId,
+                    assemblyName: 'hg38',
+                    queryName: hit.queryName,
+                    queryStart: hit.queryStart,
+                    queryEnd: hit.queryEnd,
+                    strand: hit.strand,
+                    refName: bin.refName,
+                    start: bin.bucketStart + hit.refStart,
+                    end: bin.bucketStart + hit.refEnd,
+                    score: hit.score,
                 }
                 flashmapResultsWidget.addMappedRegion(region)
             }
-            id++
         }
-        session.showWidget(flashmapResultsWidget)
         return flashmapResultsWidget
     } 
     throw new Error('Could not open Flashmap results')
@@ -232,6 +236,7 @@ function SequenceSearchButton({ model }: { model: any }) {
   const bigsiName = 'hg38'
 
   const [trigger, setTrigger] = useState(false);
+  const [queryId, setQueryId] = useState(1)
   const [sequence, setSequence] = useState('');
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false)
@@ -313,7 +318,6 @@ function SequenceSearchButton({ model }: { model: any }) {
               <DialogContentText>
                 Paste your sequence below to search against the reference or upload a FASTA file.
               </DialogContentText>
-              {error ? (<DialogContentText> {error.message} </DialogContentText>) : null }
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>
             <TextField
@@ -347,6 +351,8 @@ function SequenceSearchButton({ model }: { model: any }) {
                 />
             </Container>
             ) : null }
+
+            {error ? (<DialogContentText className={classes.errorContent}> {error.message} </DialogContentText>) : null }
             </DialogContent>
         </>
         <DialogActions>
@@ -355,8 +361,13 @@ function SequenceSearchButton({ model }: { model: any }) {
                 async () => {
                   setLoading(true)
                   const allFeatures = await runBigsiQuery(); 
-                  await activateFlashmapResultsWidget(model, allFeatures, sequence)
-                  handleClose() 
+                  if (Object.keys(allFeatures).length) {
+                    activateFlashmapResultsWidget(model, allFeatures, sequence, queryId)
+                    setQueryId(() => queryId + 1)
+                    handleClose() 
+                  } else {
+                    setError(new Error('Sequence not found!'))
+                  }
                 }
               }
             >
