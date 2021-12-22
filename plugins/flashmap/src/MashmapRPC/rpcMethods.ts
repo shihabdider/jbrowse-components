@@ -18,17 +18,15 @@ export class MashmapQueryRPC extends RpcMethodType {
     }
   }
 
-  async execute(args: { ref: string; query: string; sessionId: string }) {
+  async execute(args: {
+    ref: string
+    query: string
+    sessionId: string
+  }): Promise<string> {
     const deserializedArgs = await this.deserializeArguments(args)
     const { ref, query, sessionId } = deserializedArgs
     const refSequence = '>ref\n' + ref
     const querySequence = '>query\n' + query
-    console.log(
-      'refseq length',
-      refSequence.length,
-      'query seq length: ',
-      querySequence.length,
-    )
     const results = await main(refSequence, querySequence)
     return results
   }

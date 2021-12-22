@@ -1,4 +1,5 @@
 import React from 'react'
+import WidgetType from '@jbrowse/core/pluggableElementTypes/WidgetType'
 import Plugin from '@jbrowse/core/Plugin'
 import AdapterType from '@jbrowse/core/pluggableElementTypes/AdapterType'
 import PluginManager from '@jbrowse/core/PluginManager'
@@ -30,7 +31,10 @@ import ZoomInIcon from '@material-ui/icons/ZoomIn'
 import BigsiDialog from './components/BigsiDialog'
 import MashmapDialog from './components/MashmapDialog'
 import SequenceSearchButton from './components/SequenceSearchButton'
-import MyDialog from './components/MyDialog'
+import {
+  stateModelFactory as FlashmapResultsStateModelFactory,
+  configSchema as FlashmapResultsConfigSchema,
+} from './FlashmapResultsWidget'
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
 import { MashmapQueryRPC } from './MashmapRPC/rpcMethods'
 
@@ -115,6 +119,19 @@ export default class extends Plugin {
           AdapterClass: MashmapOutputAdapterClass,
         }),
     )
+
+    pluginManager.addWidgetType(() => {
+      return new WidgetType({
+        name: 'FlashmapResultsWidget',
+        heading: 'Flashmap results',
+        configSchema: FlashmapResultsConfigSchema,
+        stateModel: FlashmapResultsStateModelFactory(pluginManager),
+        ReactComponent: React.lazy(
+          () =>
+            import('./FlashmapResultsWidget/components/FlashmapResultsWidget'),
+        ),
+      })
+    })
 
     let lgv: LinearGenomeViewModel | null
     pluginManager.addToExtensionPoint(
