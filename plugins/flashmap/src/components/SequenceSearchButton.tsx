@@ -192,8 +192,12 @@ async function activateFlashmapResultsWidget(
         }
 
         session.showWidget(flashmapResultsWidget)
+        flashmapResultsWidget.setNumBinsHit(allFeatures.length)
+        flashmapResultsWidget.toggleIsLoading()
 
+        let currentBinNumber = 1
         for (const bin of allFeatures){
+            flashmapResultsWidget.setCurrentBin(currentBinNumber)
             const binCoords = { 
               leftOffset: bin.bucketStart,
               rightOffset: bin.bucketEnd,
@@ -215,7 +219,9 @@ async function activateFlashmapResultsWidget(
                 }
                 flashmapResultsWidget.addMappedRegion(region)
             }
+          currentBinNumber++
         }
+        flashmapResultsWidget.toggleIsLoading()
         return flashmapResultsWidget
     } 
     throw new Error('Could not open Flashmap results')

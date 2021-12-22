@@ -30,11 +30,23 @@ export default function f(pluginManager: PluginManager) {
         pluginManager.pluggableMstType('view', 'stateModel'),
       ),
       mappedRegions: types.array(LabeledRegionModel),
+      isLoading: false,
+      numBinsHit: 0,
+      currentBin: 0,
       modelSelectedAssembly: '',
     })
     .actions(self => ({
       addMappedRegion(region: Region) {
         self.mappedRegions.push(region)
+      },
+      toggleIsLoading() {
+        self.isLoading = !self.isLoading
+      },
+      setNumBinsHit(bins: number) {
+        self.numBinsHit = bins
+      },
+      setCurrentBin(binNumber: number) {
+        self.currentBin = binNumber
       },
     }))
     .views(self => ({

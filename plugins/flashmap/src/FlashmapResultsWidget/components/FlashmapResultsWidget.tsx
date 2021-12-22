@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react'
 import {
-  Link,
-  IconButton,
-  Typography,
   Button,
+  CircularProgress,
+  IconButton,
   makeStyles,
+  Link,
+  Typography,
 } from '@material-ui/core'
 import { DataGrid, GridCellParams } from '@mui/x-data-grid'
 import { 
@@ -135,7 +136,7 @@ const FlashmapResultsGrid = observer(
         headerName: 'Query Start',
         width: Math.max(
           100,
-          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryName'))),
+          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryStart'))),
         ),
       },
       {
@@ -143,7 +144,7 @@ const FlashmapResultsGrid = observer(
         headerName: 'Query End',
         width: Math.max(
           100,
-          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryName'))),
+          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryEnd'))),
         ),
       },
       {
@@ -151,7 +152,7 @@ const FlashmapResultsGrid = observer(
         headerName: 'Strand',
         width: Math.max(
           100,
-          Math.max(...flashmapResultsRows.map(row => measure(row, 'queryName'))),
+          Math.max(...flashmapResultsRows.map(row => measure(row, 'strand'))),
         ),
       },
       {
@@ -195,14 +196,27 @@ const FlashmapResultsGrid = observer(
 )
 
 function FlashmapResultsWidget({ model }: { model: FlashmapResultsModel }) {
-  const { selectedAssembly } = model
+  const { isLoading, numBinsHit, currentBin } = model
 
   return (
     <>
       <div style={{ margin: 12 }}>
         <Typography>
-          Click on each bin to perform a refined search.
+          Click on a "Mapped To" entry to jump that region in the reference.
         </Typography>
+        { isLoading ? (
+          <Typography>
+            Executing refined search on bin {currentBin} of {numBinsHit}
+
+            <CircularProgress
+              style={{
+                  marginLeft: 10,
+              }}
+              size={20}
+              disableShrink
+            />
+          </Typography> 
+          ) : null}
       </div>
       <div style={{ height: 750, width: '100%' }}>
         <FlashmapResultsGrid model={model} />
