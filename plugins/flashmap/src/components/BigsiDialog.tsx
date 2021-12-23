@@ -65,7 +65,7 @@ async function getBigsiRawHits(
   ) 
 
   return response
-  };
+};
        
 
 function constructBigsiTrack(

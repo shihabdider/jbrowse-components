@@ -1,22 +1,22 @@
-import React, { useState } from 'react'
-import { Region } from '@jbrowse/core/util/types'
-import { readConfObject } from '@jbrowse/core/configuration'
-import { getSession } from '@jbrowse/core/util'
-import { Feature } from '@jbrowse/core/util/simpleFeature'
+import React, { useState, useEffect } from 'react'
 import { observer } from 'mobx-react'
-import Button from '@material-ui/core/Button'
-import CloseIcon from '@material-ui/icons/Close'
-import Search from '@material-ui/icons/Search'
+import { getRoot } from 'mobx-state-tree'
+import { Region } from '@jbrowse/core/util/types'
+import { getSession, isSessionModelWithWidgets } from '@jbrowse/core/util'
+import { Feature } from '@jbrowse/core/util/simpleFeature'
+import { readConfObject } from '@jbrowse/core/configuration'
 import { makeStyles } from '@material-ui/core/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
-import { getRoot } from 'mobx-state-tree'
-import { FileSelector } from '@jbrowse/core/ui'
-import { isSessionModelWithWidgets } from '@jbrowse/core/util'
 import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
+import CloseIcon from '@material-ui/icons/Close'
+import Search from '@material-ui/icons/Search'
+
 import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 import {
+  Button,
+  Checkbox,
   CircularProgress,
   Container,
   Dialog,
@@ -25,6 +25,8 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   TextField,
 } from '@material-ui/core'
@@ -56,23 +58,22 @@ const useStyles = makeStyles(theme => ({
 
 function makeBigsiHitsFeatures(
   model: any,
-  response: any,
+  rawHits: any,
 ) {
-
-  const refName =
-    model.leftOffset?.refName || model.rightOffset?.refName || ''
 
   let uniqueId = 0
   const allFeatures = []
   const bucketmap = hg38BigsiConfig.bucketMap
-  for (const bucket in response) {
+  for (const bucket in rawHits) {
     const bucketNum = parseInt(bucket)
-    const bigsiFeatures = response[bucketNum]
-    bigsiFeatures.uniqueId = uniqueId
-    bigsiFeatures.bucketStart = bucketmap[bucketNum].bucketStart
-    bigsiFeatures.bucketEnd = bucketmap[bucketNum].bucketEnd
-    bigsiFeatures.name = `${bucketmap[bucketNum].refName}:${bucketmap[bucketNum].bucketStart}-${bucketmap[bucketNum].bucketEnd}`
-    bigsiFeatures.refName = bucketmap[bucketNum].refName
+    const bigsiFeatures = {
+        id: uniqueId,
+        name: `${bucketmap[bucketNum].refName}:${bucketmap[bucketNum].bucketStart}-${bucketmap[bucketNum].bucketEnd}`,
+        assemblyName: hg38BigsiConfig.assembly,
+        refName: bucketmap[bucketNum].refName,
+        bucketStart: bucketmap[bucketNum].bucketStart,
+        bucketEnd: bucketmap[bucketNum].bucketEnd,
+    }
     allFeatures.push(bigsiFeatures)
     uniqueId++
     }
@@ -84,7 +85,6 @@ async function getBucketSequence(
   model: LinearGenomeViewModel,
   bucketRegion: { leftOffset: number; rightOffset: number },
 ) {
-  console.log('bucketRegion', bucketRegion)
   const session = getSession(model)
   const { rpcManager, assemblyManager } = session
   const leftOffset = { offset: bucketRegion.leftOffset, index: 0 }
@@ -93,7 +93,7 @@ async function getBucketSequence(
     leftOffset,
     rightOffset,
   )
-  console.log('regions', selectedRegions)
+
   const sessionId = 'getBucketSequence'
   const assemblyName = 'hg38'
   const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
@@ -167,18 +167,53 @@ function parseMashmapResults(rawHits: string) {
             refEnd: parseInt(columns[8]),
             score: Number.parseFloat(columns[9]),
         }
-        console.log('row, columns', row, columns)
         results.push(row)
     }
   }
   return results
 }
 
-async function activateFlashmapResultsWidget(
+async function runMashmapOnBins(
   model: LinearGenomeViewModel, 
-  allFeatures: any[], 
-  querySeq: string,
+  flashmapResultsWidget: any, 
+  allFeatures: any[],
   queryId: number,
+  querySeq: string,
+  ) {
+    flashmapResultsWidget.setNumBinsHit(allFeatures.length)
+    flashmapResultsWidget.toggleIsLoading()
+
+    let currentBinNumber = 1
+    for (const bin of allFeatures){
+        flashmapResultsWidget.setCurrentBin(currentBinNumber)
+        const binCoords = { 
+            leftOffset: bin.bucketStart,
+            rightOffset: bin.bucketEnd,
+        }
+        const mashmapRawHits = await handleMashmapQuery(model, querySeq, binCoords)
+        const mashmapHits = parseMashmapResults(mashmapRawHits)
+        for (const hit of mashmapHits) {
+            const region = {
+                id: queryId,
+                assemblyName: 'hg38',
+                queryName: hit.queryName,
+                queryStart: hit.queryStart,
+                queryEnd: hit.queryEnd,
+                strand: hit.strand,
+                refName: bin.refName,
+                start: bin.bucketStart + hit.refStart,
+                end: bin.bucketStart + hit.refEnd,
+                score: hit.score,
+            }
+            flashmapResultsWidget.addMappedRegion(region)
+        }
+        currentBinNumber++
+    }
+    flashmapResultsWidget.toggleIsLoading()
+}
+
+function activateFlashmapResultsWidget(
+  model: LinearGenomeViewModel, 
   ) {
     const session = getSession(model)
     if (isSessionModelWithWidgets(session)) {
@@ -192,36 +227,6 @@ async function activateFlashmapResultsWidget(
         }
 
         session.showWidget(flashmapResultsWidget)
-        flashmapResultsWidget.setNumBinsHit(allFeatures.length)
-        flashmapResultsWidget.toggleIsLoading()
-
-        let currentBinNumber = 1
-        for (const bin of allFeatures){
-            flashmapResultsWidget.setCurrentBin(currentBinNumber)
-            const binCoords = { 
-              leftOffset: bin.bucketStart,
-              rightOffset: bin.bucketEnd,
-            }
-            const mashmapRawHits = await handleMashmapQuery(model, querySeq, binCoords)
-            const mashmapHits = parseMashmapResults(mashmapRawHits)
-            for (const hit of mashmapHits) {
-                const region = {
-                    id: queryId,
-                    assemblyName: 'hg38',
-                    queryName: hit.queryName,
-                    queryStart: hit.queryStart,
-                    queryEnd: hit.queryEnd,
-                    strand: hit.strand,
-                    refName: bin.refName,
-                    start: bin.bucketStart + hit.refStart,
-                    end: bin.bucketStart + hit.refEnd,
-                    score: hit.score,
-                }
-                flashmapResultsWidget.addMappedRegion(region)
-            }
-          currentBinNumber++
-        }
-        flashmapResultsWidget.toggleIsLoading()
         return flashmapResultsWidget
     } 
     throw new Error('Could not open Flashmap results')
@@ -234,7 +239,89 @@ function cleanSequence(sequence: string){
   return cleanSeq
 }
 
+interface Checkboxes {
+  [key: string]: { 
+    name: string, 
+    key: number, 
+    label: string 
+  } 
+}
 
+function CheckboxContainer({
+  checkboxes, 
+  updateSelectedBigsis, 
+  ...props
+  } : {
+  checkboxes: Checkboxes,
+  updateSelectedBigsis: React.Dispatch<React.SetStateAction<string[]>>  
+}){
+    const initCheckedItems = Object.fromEntries(Object.keys(checkboxes).map(key => [key, false]))
+    const [checkedItems, setCheckedItems] = useState(initCheckedItems)
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => { 
+      const { name, checked } = event.target
+      setCheckedItems({...checkedItems, [name]:checked})
+
+    }
+
+    useEffect(() => {
+      const selectedBigsis = []
+      for (const item of Object.keys(checkedItems)){
+        if (checkedItems[item]){
+          selectedBigsis.push(checkboxes[item].name)
+        }
+      }
+      console.log('selectedBigsi', selectedBigsis)
+
+      updateSelectedBigsis(selectedBigsis)
+    }, [checkedItems])
+
+    return (
+      <FormGroup>
+        { Object.values(checkboxes).map((checkbox) => 
+          <FormControlLabel
+            key={checkbox.key}
+            label={checkbox.label}
+            control={
+              <Checkbox
+                key={checkbox.key}
+                name={checkbox.name}
+                checked={checkedItems[checkbox.name]}
+                onChange={handleChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+            }
+        />
+        )}
+      </FormGroup>
+    )
+}
+
+async function getBigsiRawHits(
+    model: any,
+    querySequence: string,
+    bigsiName: string,
+) : Promise<any> {
+    const session = getSession(model)
+    const { rpcManager } = session
+
+    const sessionId = 'bigsiQuery'
+
+    const params = {
+        sessionId,
+        querySequence,
+        bigsiName,
+    }
+
+    const response = await rpcManager.call(
+            sessionId,
+            "BigsiQueryRPC",
+            params
+    ) 
+
+    return response
+};
+  
 function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
   const session = getSession(model)
@@ -247,6 +334,30 @@ function SequenceSearchButton({ model }: { model: any }) {
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error>()
+  const [selectedBigsis, setSelectedBigsis] = useState<Array<string>>([])
+
+  const checkboxes: Checkboxes = {
+      hg38: { 
+          name: 'hg38',
+          key: 1,
+          label: 'hg38 - whole genome assembly',
+      },
+  }
+
+  async function runSearch() {
+    for (const bigsiName of selectedBigsis) {
+        const rawHits = await getBigsiRawHits(model, sequence, bigsiName)
+        setLoading(false)
+        const allFeatures = makeBigsiHitsFeatures(model, rawHits)
+        if (Object.keys(allFeatures).length) {
+            const flashmapResultsWidget = activateFlashmapResultsWidget(model)
+            runMashmapOnBins(model, flashmapResultsWidget, allFeatures, queryId, sequence)
+            setQueryId(() => queryId + 1)
+        } else {
+            setError(new Error('Sequence not found!'))
+        }
+    }
+  }
 
   function handleClose() {
     setLoading(false)
@@ -256,23 +367,6 @@ function SequenceSearchButton({ model }: { model: any }) {
     setTrigger(false)
   }
 
-  async function runBigsiQuery(){
-    const sessionId = 'bigsiQuery'
-    const querySequence = cleanSequence(sequence)
-    const params = {
-        sessionId,
-        querySequence,
-        bigsiName 
-    }
-    const results = await rpcManager.call(
-    sessionId,
-    "BigsiQueryRPC",
-    params
-    );
-    const allFeatures = makeBigsiHitsFeatures(model, results)
-    return allFeatures
-  }
-  
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
       if (event.target.files) {
         const file = event.target.files[0]
@@ -318,9 +412,12 @@ function SequenceSearchButton({ model }: { model: any }) {
             ) : null}
           </DialogTitle>
           <Divider />
-
         <>
             <DialogContent>
+                <>
+                <DialogContentText>Select target reference to search against</DialogContentText>
+                <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
+                </>
               <DialogContentText>
                 Paste your sequence below to search against the reference or upload a FASTA file.
               </DialogContentText>
@@ -365,15 +462,15 @@ function SequenceSearchButton({ model }: { model: any }) {
             <Button
               onClick={
                 async () => {
-                  setLoading(true)
-                  const allFeatures = await runBigsiQuery(); 
-                  if (Object.keys(allFeatures).length) {
-                    activateFlashmapResultsWidget(model, allFeatures, sequence, queryId)
-                    setQueryId(() => queryId + 1)
-                    handleClose() 
-                  } else {
-                    setError(new Error('Sequence not found!'))
-                  }
+                  if (selectedBigsis.length) {
+                        setLoading(true)
+                        await runSearch(); 
+                        if (!loading) {
+                          handleClose()
+                        }
+                   } else {
+                        setError(new Error('Please select a reference to search against.'))
+                   }
                 }
               }
             >
