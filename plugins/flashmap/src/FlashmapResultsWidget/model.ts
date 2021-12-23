@@ -33,6 +33,7 @@ export default function f(pluginManager: PluginManager) {
       isLoading: false,
       numBinsHit: 0,
       currentBin: 0,
+      queryNum: 1,
       modelSelectedAssembly: '',
     })
     .actions(self => ({
@@ -47,6 +48,9 @@ export default function f(pluginManager: PluginManager) {
       },
       setCurrentBin(binNumber: number) {
         self.currentBin = binNumber
+      },
+      setQueryNum(num: number) {
+        self.queryNum = num
       },
     }))
     .views(self => ({

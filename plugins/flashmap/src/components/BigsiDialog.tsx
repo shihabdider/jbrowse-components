@@ -20,8 +20,11 @@ import {
   Typography,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
-import { getSession } from '@jbrowse/core/util'
+import { getSession, isSessionModelWithWidgets } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
+import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
+
+import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
 
 const useStyles = makeStyles(theme => ({
   loadingMessage: {
@@ -67,6 +70,180 @@ async function getBigsiRawHits(
   return response
 };
        
+
+function makeBigsiHitsFeatures(
+  model: any,
+  rawHits: any,
+) {
+
+  let uniqueId = 0
+  const allFeatures = []
+  const bucketmap = hg38BigsiConfig.bucketMap
+  for (const bucket in rawHits) {
+    const bucketNum = parseInt(bucket)
+    const bigsiFeatures = {
+        id: uniqueId,
+        name: `${bucketmap[bucketNum].refName}:${bucketmap[bucketNum].bucketStart}-${bucketmap[bucketNum].bucketEnd}`,
+        assemblyName: hg38BigsiConfig.assembly,
+        refName: bucketmap[bucketNum].refName,
+        bucketStart: bucketmap[bucketNum].bucketStart,
+        bucketEnd: bucketmap[bucketNum].bucketEnd,
+    }
+    allFeatures.push(bigsiFeatures)
+    uniqueId++
+    }
+
+  return allFeatures
+}
+
+async function getMashmapRawHits(
+  model: any,
+  sequences: { ref: string; query: string },
+) : Promise<string> {
+  const session = getSession(model)
+  const { rpcManager } = session
+
+  const sessionId = 'mashmapQuery'
+  const { ref, query } = sequences
+
+  const params = {
+    sessionId,
+    ref,
+    query,
+  }
+
+  const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
+
+  return response as string
+}
+
+async function getBucketSequence(
+  model: LinearGenomeViewModel,
+  bucketRegion: { leftOffset: number; rightOffset: number },
+) {
+  const session = getSession(model)
+  const { rpcManager, assemblyManager } = session
+  const leftOffset = { offset: bucketRegion.leftOffset, index: 0 }
+  const rightOffset = { offset: bucketRegion.rightOffset, index: 0 }
+  const selectedRegions: Region[] = model.getSelectedRegions(
+    leftOffset,
+    rightOffset,
+  )
+
+  const sessionId = 'getBucketSequence'
+  const assemblyName = 'hg38'
+  const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
+  const adapterConfig = readConfObject(assemblyConfig, ['sequence', 'adapter'])
+  const chunks = (await Promise.all(
+    selectedRegions.map(region =>
+      rpcManager.call(sessionId, 'CoreGetFeatures', {
+        adapterConfig,
+        region,
+        sessionId,
+      }),
+    ),
+  )) as Feature[][]
+
+  // assumes that we get whole sequence in a single getFeatures call
+  return chunks.map(chunk => chunk[0])
+}
+async function handleMashmapQuery(
+  model: LinearGenomeViewModel,
+  querySequence: string, 
+  bucketCoords: { leftOffset: number, rightOffset: number }
+  ) : Promise<string> {
+
+    const refSeq = await getBucketSequence(model, bucketCoords)
+    // pass ref and query to mashmap rpc
+    const sequences = {
+        ref: refSeq[0].get('seq'),
+        query: querySequence
+    }
+    const mashmapHits = await getMashmapRawHits(model, sequences)
+    return mashmapHits
+}
+
+function parseMashmapResults(rawHits: string) {
+  const entries = rawHits.split('\n')
+  const results = []
+  for (const entry of entries) {
+    if (entry) {
+        const columns = entry.split(' ')
+        const row = {
+            queryName: columns[0],
+            queryLen: parseInt(columns[1]),
+            queryStart: parseInt(columns[2]),
+            queryEnd: parseInt(columns[3]),
+            strand: columns[4],
+            refName: columns[5],
+            refLen: parseInt(columns[6]),
+            refStart: parseInt(columns[7]),
+            refEnd: parseInt(columns[8]),
+            score: Number.parseFloat(columns[9]),
+        }
+        results.push(row)
+    }
+  }
+  return results
+}
+async function runMashmapOnBins(
+  model: LinearGenomeViewModel, 
+  flashmapResultsWidget: any, 
+  allFeatures: any[],
+  queryId: number,
+  querySeq: string,
+  ) {
+    flashmapResultsWidget.setNumBinsHit(allFeatures.length)
+    flashmapResultsWidget.toggleIsLoading()
+
+    let currentBinNumber = 1
+    for (const bin of allFeatures){
+        flashmapResultsWidget.setCurrentBin(currentBinNumber)
+        const binCoords = { 
+            leftOffset: bin.bucketStart,
+            rightOffset: bin.bucketEnd,
+        }
+        const mashmapRawHits = await handleMashmapQuery(model, querySeq, binCoords)
+        const mashmapHits = parseMashmapResults(mashmapRawHits)
+        for (const hit of mashmapHits) {
+            const region = {
+                id: queryId,
+                assemblyName: 'hg38',
+                queryName: hit.queryName,
+                queryStart: hit.queryStart,
+                queryEnd: hit.queryEnd,
+                strand: hit.strand,
+                refName: bin.refName,
+                start: bin.bucketStart + hit.refStart,
+                end: bin.bucketStart + hit.refEnd,
+                score: hit.score,
+            }
+            flashmapResultsWidget.addMappedRegion(region)
+        }
+        currentBinNumber++
+    }
+    flashmapResultsWidget.toggleIsLoading()
+}
+
+function activateFlashmapResultsWidget(
+  model: LinearGenomeViewModel, 
+  ) {
+    const session = getSession(model)
+    if (isSessionModelWithWidgets(session)) {
+        let flashmapResultsWidget = session.widgets.get('FlashmapResults')
+        if (!flashmapResultsWidget) {
+            flashmapResultsWidget = session.addWidget(
+                'FlashmapResultsWidget',
+                'FlashmapResults',
+                { view: model },
+            )
+        }
+
+        session.showWidget(flashmapResultsWidget)
+        return flashmapResultsWidget
+    } 
+    throw new Error('Could not open Flashmap results')
+}
 
 function constructBigsiTrack(
     self: any,
@@ -211,6 +388,7 @@ function BigsiDialog({
   const classes = useStyles()
   const session = getSession(model)
   const [error, setError] = useState<unknown>()
+  const [queryId, setQueryId] = useState(1)
   const [sequence, setSequence] = useState('')
   const [loading, setLoading] = useState(false)
   const [selectedBigsis, setSelectedBigsis] = useState<Array<string>>([])
@@ -232,31 +410,28 @@ function BigsiDialog({
       },
   }
 
-  const runSearch = async () => {
-    let active = true
+  async function runSearch() {
     for (const bigsiName of selectedBigsis) {
         try {
             if (queryRegion.length > 0) {
-            const results = await fetchSequence(model, queryRegion)
-            const data = results.map(result => result.get('seq'))
-            const querySequence = (data.join(''))
-            if (active) {
+                const results = await fetchSequence(model, queryRegion)
+                const data = results.map(result => result.get('seq'))
+                const querySequence = (data.join(''))
                 const rawHits = await getBigsiRawHits(model, querySequence, bigsiName)
-                constructBigsiTrack(model, rawHits, querySequence)
+                //constructBigsiTrack(model, rawHits, querySequence)
                 setLoading(false)
-            }
-            } else {
-            throw new Error('Selected region is out of bounds')
+                const allFeatures = makeBigsiHitsFeatures(model, rawHits)
+                if (Object.keys(allFeatures).length) {
+                    const flashmapResultsWidget = activateFlashmapResultsWidget(model)
+                    runMashmapOnBins(model, flashmapResultsWidget, allFeatures, queryId, querySequence)
+                    setQueryId(() => queryId + 1)
+                } else {
+                    setError(new Error('Sequence not found!'))
+                }
             }
         } catch(e) {
-            console.error(e)
-            if (active) {
-              setError(e)
-            }
+            setError(e)
         }
-      }
-    return () => {
-      active = false
     }
   }
 
@@ -290,12 +465,10 @@ function BigsiDialog({
 
       <DialogContent>
         {error ? <Typography color="error">{`${error}`}</Typography> : null}
-        {!error ? (
           <>
           <DialogContentText>Select target reference to search against</DialogContentText>
           <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
           </>
-        ) : null}
         {loading && !error ? (
           <Container> 
             Retrieving search hits...
@@ -316,8 +489,13 @@ function BigsiDialog({
             if (selectedBigsis.length){
                 setLoading(true)
                 await runSearch()
-                model.setOffsets(undefined, undefined)
-                handleClose()
+                if (!loading) {
+                    model.setOffsets(undefined, undefined)
+                    handleClose()
+                } else {
+                    setError(new Error('Please select a reference to search against.'))
+                }
+
             }
           }}
           color="primary"
