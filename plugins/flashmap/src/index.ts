@@ -168,52 +168,6 @@ export default class extends Plugin {
       },
     )
 
-    pluginManager.addToExtensionPoint(
-      'Core-extendPluggableElement',
-      (pluggableElement: PluggableElementType) => {
-        if (pluggableElement.name === 'LinearBasicDisplay') {
-          const { stateModel } = pluggableElement as DisplayType
-          const newStateModel = stateModel.extend(
-            (self: BaseLinearDisplayModel) => {
-              const superContextMenuItems = self.contextMenuItems
-              return {
-                views: {
-                  contextMenuItems() {
-                    const feature = self.contextMenuFeature
-                    if (!feature) {
-                      // we're not adding any menu items since the click was not
-                      // on a feature
-                      return superContextMenuItems()
-                    }
-                    return [
-                      ...superContextMenuItems(),
-                      {
-                        label: 'Refined sequence search',
-                        icon: ZoomInIcon,
-                        onClick: () => {
-                          getSession(self).queueDialog(doneCallback => [
-                            MashmapDialog,
-                            {
-                              model: lgv,
-                              feature: feature,
-                              handleClose: doneCallback,
-                            },
-                          ])
-                        },
-                      },
-                    ]
-                  },
-                },
-              }
-            },
-          )
-          ;(pluggableElement as DisplayType).stateModel = newStateModel
-        }
-
-        return pluggableElement
-      },
-    )
-
     pluginManager.addRpcMethod(() => new BigsiQueryRPC(pluginManager))
     pluginManager.addRpcMethod(() => new MashmapQueryRPC(pluginManager))
   }
