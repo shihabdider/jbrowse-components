@@ -142,7 +142,6 @@ export default class extends Plugin {
           const newStateModel = stateModel.extend(
             (self: LinearGenomeViewModel) => {
               lgv = self
-              const superRubberBandMenuItems = self.rubberBandMenuItems
               const superHeaderButtons = self.extraHeaderButtons
               return {
                 views: {
@@ -156,26 +155,6 @@ export default class extends Plugin {
                     ]
 
                     return newHeaderButtons
-                  },
-                  rubberBandMenuItems() {
-                    const newRubberBandMenuItems = [
-                      ...superRubberBandMenuItems(),
-                      {
-                        label: 'Sequence Search',
-                        icon: ZoomInIcon,
-                        onClick: () => {
-                          getSession(self).queueDialog(doneCallback => [
-                            BigsiDialog,
-                            {
-                              model: self,
-                              handleClose: doneCallback,
-                            },
-                          ])
-                        },
-                      },
-                    ]
-
-                    return newRubberBandMenuItems
                   },
                 },
               }

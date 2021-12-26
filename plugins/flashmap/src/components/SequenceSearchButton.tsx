@@ -185,6 +185,7 @@ async function runMashmapOnBins(
     flashmapResultsWidget.toggleIsLoading()
 
     let currentBinNumber = 1
+    const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
     for (const bin of allFeatures){
         flashmapResultsWidget.setCurrentBin(currentBinNumber)
         const binCoords = { 
@@ -195,7 +196,7 @@ async function runMashmapOnBins(
         const mashmapHits = parseMashmapResults(mashmapRawHits)
         for (const hit of mashmapHits) {
             const region = {
-                id: queryId,
+                id: flashmapResultsWidget.queryNum,
                 assemblyName: 'hg38',
                 queryName: hit.queryName,
                 queryStart: hit.queryStart,
@@ -209,6 +210,10 @@ async function runMashmapOnBins(
             flashmapResultsWidget.addMappedRegion(region)
         }
         currentBinNumber++
+    }
+    // only increment id if there were results
+    if (prevMappedRegionsLen < flashmapResultsWidget.mappedRegions.length) {
+      flashmapResultsWidget.setQueryNum(flashmapResultsWidget.queryNum + 1)
     }
     flashmapResultsWidget.toggleIsLoading()
 }
