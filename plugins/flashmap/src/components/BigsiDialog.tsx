@@ -17,6 +17,7 @@ import {
   IconButton,
   FormControlLabel,
   FormGroup,
+  Link,
   Typography,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
@@ -465,6 +466,10 @@ function BigsiDialog({
 
       <DialogContent>
         {error ? <Typography color="error">{`${error}`}</Typography> : null}
+          <DialogContentText>
+          Perform an approximate sequence search with selected sequence. For more details see: 
+          <Link>TBD</Link>
+          </DialogContentText>
           <>
           <DialogContentText>Select target reference to search against</DialogContentText>
           <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>

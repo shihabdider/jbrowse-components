@@ -28,6 +28,7 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  Link,
   TextField,
 } from '@material-ui/core'
 
@@ -393,6 +394,7 @@ function SequenceSearchButton({ model }: { model: any }) {
       <Button
         variant="outlined"
         className={classes.sequenceSearchButton}
+        title={'Sequence Search'}
         onClick={() => setTrigger(true)}
       >
         <Search />
@@ -414,12 +416,13 @@ function SequenceSearchButton({ model }: { model: any }) {
           <Divider />
         <>
             <DialogContent>
+                <DialogContentText>Perform an approximate sequence search. For more details see: <Link>TBD</Link></DialogContentText>
                 <>
                 <DialogContentText>Select target reference to search against</DialogContentText>
                 <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
                 </>
               <DialogContentText>
-                Paste your sequence below to search against the reference or upload a FASTA file.
+                Paste your query sequence below or upload a FASTA file.
               </DialogContentText>
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>
