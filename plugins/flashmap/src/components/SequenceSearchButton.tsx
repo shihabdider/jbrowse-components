@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { getRoot } from 'mobx-state-tree'
+
 import { Region } from '@jbrowse/core/util/types'
 import { getSession, isSessionModelWithWidgets } from '@jbrowse/core/util'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
 import { readConfObject } from '@jbrowse/core/configuration'
-import { makeStyles } from '@material-ui/core/styles'
-import { fade } from '@material-ui/core/styles/colorManipulator'
 import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
-import CloseIcon from '@material-ui/icons/Close'
-import Search from '@material-ui/icons/Search'
 
-import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+import { makeStyles } from '@material-ui/core/styles'
+import { alpha } from '@material-ui/core/styles/colorManipulator'
 
-/* eslint-disable no-nested-ternary */
+import { Close, Search } from '@material-ui/icons'
 import {
   Button,
   Checkbox,
@@ -29,16 +27,20 @@ import {
   FormGroup,
   IconButton,
   Link,
+  Slider,
   TextField,
 } from '@material-ui/core'
 
+import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+
+/* eslint-disable no-nested-ternary */
 
 const WIDGET_HEIGHT = 32
 const SPACING = 7
 
 const useStyles = makeStyles(theme => ({
   sequenceSearchButton: {
-    background: fade(theme.palette.background.paper, 0.8),
+    background: alpha(theme.palette.background.paper, 0.8),
     height: WIDGET_HEIGHT,
     margin: SPACING,
   },
@@ -116,6 +118,7 @@ async function getBucketSequence(
 async function getMashmapRawHits(
   model: any,
   sequences: { ref: string; query: string },
+  percIdentity: string
 ) : Promise<string> {
   const session = getSession(model)
   const { rpcManager } = session
@@ -127,6 +130,7 @@ async function getMashmapRawHits(
     sessionId,
     ref,
     query,
+    percIdentity
   }
 
   const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
@@ -137,6 +141,7 @@ async function getMashmapRawHits(
 async function handleMashmapQuery(
   model: LinearGenomeViewModel,
   querySequence: string, 
+  percIdentity: string,
   bucketCoords: { leftOffset: number, rightOffset: number }
   ) : Promise<string> {
 
@@ -146,7 +151,7 @@ async function handleMashmapQuery(
         ref: refSeq[0].get('seq'),
         query: querySequence
     }
-    const mashmapHits = await getMashmapRawHits(model, sequences)
+    const mashmapHits = await getMashmapRawHits(model, sequences, percIdentity)
     return mashmapHits
 }
 
@@ -179,6 +184,7 @@ async function runMashmapOnBins(
   flashmapResultsWidget: any, 
   allFeatures: any[],
   queryId: number,
+  percIdentity: string,
   querySeq: string,
   ) {
     flashmapResultsWidget.setNumBinsHit(allFeatures.length)
@@ -192,7 +198,7 @@ async function runMashmapOnBins(
             leftOffset: bin.bucketStart,
             rightOffset: bin.bucketEnd,
         }
-        const mashmapRawHits = await handleMashmapQuery(model, querySeq, binCoords)
+        const mashmapRawHits = await handleMashmapQuery(model, querySeq, percIdentity, binCoords)
         const mashmapHits = parseMashmapResults(mashmapRawHits)
         for (const hit of mashmapHits) {
             const region = {
@@ -277,7 +283,6 @@ function CheckboxContainer({
           selectedBigsis.push(checkboxes[item].name)
         }
       }
-      console.log('selectedBigsi', selectedBigsis)
 
       updateSelectedBigsis(selectedBigsis)
     }, [checkedItems])
@@ -336,6 +341,7 @@ function SequenceSearchButton({ model }: { model: any }) {
 
   const [trigger, setTrigger] = useState(false);
   const [queryId, setQueryId] = useState(1)
+  const [percIdentity, setPercIdentity] = useState('85')
   const [sequence, setSequence] = useState('');
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false)
@@ -357,7 +363,7 @@ function SequenceSearchButton({ model }: { model: any }) {
         const allFeatures = makeBigsiHitsFeatures(model, rawHits)
         if (Object.keys(allFeatures).length) {
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
-            runMashmapOnBins(model, flashmapResultsWidget, allFeatures, queryId, sequence)
+            runMashmapOnBins(model, flashmapResultsWidget, allFeatures, queryId, percIdentity, sequence)
             setQueryId(() => queryId + 1)
         } else {
             setError(new Error('Sequence not found!'))
@@ -400,7 +406,7 @@ function SequenceSearchButton({ model }: { model: any }) {
         variant="outlined"
         className={classes.sequenceSearchButton}
         title={'Sequence Search'}
-        onClick={() => setTrigger(true)}
+        onClick={() => {setTrigger(true); activateFlashmapResultsWidget(model);}}
       >
         <Search />
       </Button>
@@ -411,10 +417,10 @@ function SequenceSearchButton({ model }: { model: any }) {
         onClose={() => setTrigger(false)}>
 
           <DialogTitle>
-            Sequence Search
+            Approximate Sequence Search
             {trigger ? (
               <IconButton className={classes.closeButton} onClick={() => setTrigger(false)}>
-                <CloseIcon />
+                <Close />
               </IconButton>
             ) : null}
           </DialogTitle>
@@ -426,11 +432,36 @@ function SequenceSearchButton({ model }: { model: any }) {
                 <DialogContentText>Select target reference to search against</DialogContentText>
                 <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
                 </>
+                <>
+                <DialogContentText>
+                    Choose a percent identity threshold. Only matches with 
+                    identity greater than or equal to this threshold will be 
+                    displayed. An identity threshold of 100 indicates an exact 
+                    match search.
+                </DialogContentText>
+                <br></br>
+                <Slider
+                    aria-label="Percent Identity"
+                    min={80}
+                    max={100}
+                    defaultValue={85}
+                    valueLabelDisplay="auto"
+                    onChangeCommitted={(event, value) => {
+                        if (event) {
+                            //const target = event.target as HTMLInputElement
+                            setPercIdentity(value.toString())
+                        }
+                      }
+                    }
+                 />
+                </>
               <DialogContentText>
-                Paste your query sequence below or upload a FASTA file.
+                Upload your query sequence as a FASTA file or paste it below. 
+                Query sequence must be between 500bp to 300Kbp.
               </DialogContentText>
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>
+            <br></br>
             <TextField
                 label="Query Sequence"
                 variant="outlined"
@@ -440,7 +471,7 @@ function SequenceSearchButton({ model }: { model: any }) {
                 maxRows={5}
                 fullWidth
                 className={classes.dialogContent}
-                onChange={() => { 
+                onChange={(event) => { 
                     if (event) {
                         const target = event.target as HTMLTextAreaElement
                         setSequence(target.value)
