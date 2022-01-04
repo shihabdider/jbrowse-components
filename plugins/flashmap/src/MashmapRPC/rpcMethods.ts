@@ -6,8 +6,8 @@ import main from './mashmap_glue'
 export class MashmapQueryRPC extends RpcMethodType {
   name = 'MashmapQueryRPC'
 
-  async deserializeArguments(args: any) {
-    const l = await super.deserializeArguments(args, 'MashmapQueryRPC')
+  async deserializeArguments(args: any, rpcDriverClassName: string) {
+    const l = await super.deserializeArguments(args, rpcDriverClassName)
     return {
       ...l,
       filters: args.filters
@@ -18,13 +18,19 @@ export class MashmapQueryRPC extends RpcMethodType {
     }
   }
 
-  async execute(args: {
-    ref: string
-    query: string
-    percIdentity: string
-    sessionId: string
-  }): Promise<string> {
-    const deserializedArgs = await this.deserializeArguments(args)
+  async execute(
+    args: {
+      ref: string
+      query: string
+      percIdentity: string
+      sessionId: string
+    },
+    rpcDriverClassName: string,
+  ): Promise<string> {
+    const deserializedArgs = await this.deserializeArguments(
+      args,
+      rpcDriverClassName,
+    )
     const { ref, query, percIdentity, sessionId } = deserializedArgs
     const refSequence = '>ref\n' + ref
     const querySequence = '>query\n' + query

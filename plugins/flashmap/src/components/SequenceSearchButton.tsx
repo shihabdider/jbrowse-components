@@ -182,13 +182,14 @@ function parseMashmapResults(rawHits: string) {
 async function runMashmapOnBins(
   model: LinearGenomeViewModel, 
   flashmapResultsWidget: any, 
+  refAssembly: string,
   allFeatures: any[],
   queryId: number,
   percIdentity: string,
   querySeq: string,
   ) {
     flashmapResultsWidget.setNumBinsHit(allFeatures.length)
-    flashmapResultsWidget.toggleIsLoading()
+    flashmapResultsWidget.setIsLoading(true)
 
     let currentBinNumber = 1
     const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
@@ -198,12 +199,13 @@ async function runMashmapOnBins(
             leftOffset: bin.bucketStart,
             rightOffset: bin.bucketEnd,
         }
+
         const mashmapRawHits = await handleMashmapQuery(model, querySeq, percIdentity, binCoords)
         const mashmapHits = parseMashmapResults(mashmapRawHits)
         for (const hit of mashmapHits) {
             const region = {
                 id: flashmapResultsWidget.queryNum,
-                assemblyName: 'hg38',
+                assemblyName: refAssembly,
                 queryName: hit.queryName,
                 queryStart: hit.queryStart,
                 queryEnd: hit.queryEnd,
@@ -221,7 +223,7 @@ async function runMashmapOnBins(
     if (prevMappedRegionsLen < flashmapResultsWidget.mappedRegions.length) {
       flashmapResultsWidget.setQueryNum(flashmapResultsWidget.queryNum + 1)
     }
-    flashmapResultsWidget.toggleIsLoading()
+    flashmapResultsWidget.setIsLoading(false)
 }
 
 function activateFlashmapResultsWidget(
@@ -324,6 +326,8 @@ async function getBigsiRawHits(
         bigsiName,
     }
 
+    console.log('query', querySequence)
+
     const response = await rpcManager.call(
             sessionId,
             "BigsiQueryRPC",
@@ -337,7 +341,6 @@ function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
   const session = getSession(model)
   const { rpcManager, assemblyNames } = session
-  const bigsiName = 'hg38'
 
   const [trigger, setTrigger] = useState(false);
   const [queryId, setQueryId] = useState(1)
@@ -363,7 +366,11 @@ function SequenceSearchButton({ model }: { model: any }) {
         const allFeatures = makeBigsiHitsFeatures(model, rawHits)
         if (Object.keys(allFeatures).length) {
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
-            runMashmapOnBins(model, flashmapResultsWidget, allFeatures, queryId, percIdentity, sequence)
+            const refAssemblyName = bigsiName
+            runMashmapOnBins(
+              model, flashmapResultsWidget, refAssemblyName, 
+              allFeatures, queryId, percIdentity, sequence
+            )
             setQueryId(() => queryId + 1)
         } else {
             setError(new Error('Sequence not found!'))
@@ -427,7 +434,10 @@ function SequenceSearchButton({ model }: { model: any }) {
           <Divider />
         <>
             <DialogContent>
-                <DialogContentText>Perform an approximate sequence search. For more details see: <Link>TBD</Link></DialogContentText>
+                <DialogContentText>
+                Perform an approximate sequence search. For more details see: 
+                <Link>TBD</Link>
+                </DialogContentText>
                 <>
                 <DialogContentText>Select target reference to search against</DialogContentText>
                 <CheckboxContainer checkboxes={checkboxes} updateSelectedBigsis={setSelectedBigsis}/>
