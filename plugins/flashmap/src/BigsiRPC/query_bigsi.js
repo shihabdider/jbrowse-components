@@ -16,12 +16,17 @@
  *  
  */
 
-const cdf = require('binomial-cdf')
-const matrix = require('matrix-js')
-const BitSet = require('bitset')
-const fs = require('fs')
-const helper = require('./helper.js')
-const bigsiConfig = require('./bigsis.config.json')
+import matrix from 'matrix-js'
+import * as fs from 'fs'
+import * as helper from './helper.js'
+import bigsiConfig from './bigsis.config.json'
+
+//const cdf = require('binomial-cdf')
+//const matrix = require('matrix-js')
+//const BitSet = require('bitset')
+//const fs = require('fs')
+//const helper = require('./helper.js')
+//const bigsiConfig = require('./bigsis.config.json')
 
 // One function is used for fragmenting and winnowing to prevent double 
 // iteration
@@ -274,15 +279,17 @@ async function main(querySeq, bigsiName) {
     return filteredBigsiHits
 }
 
-module.exports = {
-    winnowQueryFragments: winnowQueryFragments,
-    makeFragmentsBloomFilters: makeFragmentsBloomFilters,
-    getBloomFilterSetBitsIndices: getBloomFilterSetBitsIndices,
-    getBinaryBigsiSubmatrix: getBinaryBigsiSubmatrix,
-    getHexBigsiSubmatrix: getHexBigsiSubmatrix,
-    computeSubmatrixHits: computeSubmatrixHits,
-    computeQueryContainmentScores: computeQueryContainmentScores, 
-    queryBinaryBigsi: queryBinaryBigsi,
-    queryHexBigsi: queryHexBigsi,
-    main: main
-}
+export { main }
+
+//module.exports = {
+//    winnowQueryFragments: winnowQueryFragments,
+//    makeFragmentsBloomFilters: makeFragmentsBloomFilters,
+//    getBloomFilterSetBitsIndices: getBloomFilterSetBitsIndices,
+//    getBinaryBigsiSubmatrix: getBinaryBigsiSubmatrix,
+//    getHexBigsiSubmatrix: getHexBigsiSubmatrix,
+//    computeSubmatrixHits: computeSubmatrixHits,
+//    computeQueryContainmentScores: computeQueryContainmentScores, 
+//    queryBinaryBigsi: queryBinaryBigsi,
+//    queryHexBigsi: queryHexBigsi,
+//    main: main,
+//}

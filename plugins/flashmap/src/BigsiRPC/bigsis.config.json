@@ -1,6 +1,18 @@
 {
   "hg38": {
     "exactMatch": {
+      "path": "https://flashmap.s3.us-west-1.amazonaws.com/public/hg38_whole_genome_exact.bin",
+      "numRows": 705000,
+      "numCols": 384
+    },
+    "inexactMatch": {
+      "path": "https://flashmap.s3.us-west-1.amazonaws.com/public/hg38_whole_genome.bin",
+      "numRows": 293000,
+      "numCols": 384
+    }
+  },
+  "hg38_local": {
+    "exactMatch": {
       "path": "http://localhost:3001/public/hg38_whole_genome_exact.bin",
       "numRows": 705000,
       "numCols": 384

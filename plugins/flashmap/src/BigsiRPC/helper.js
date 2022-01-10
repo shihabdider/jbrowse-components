@@ -140,15 +140,27 @@ function makeMinimizersBloomFilter(minimizers, bloomFilterSize) {
     return minimizersBloomFilter
 }
 
-module.exports = {
-    zeroPadBitstring: zeroPadBitstring,
-    reverseComplement: reverseComplement,
-    loadFasta: loadFasta,
-    getFilteredGenomeSeqs: getFilteredGenomeSeqs,
-    extractMinimizers: extractMinimizers,
-    computeBloomFilterFalsePosRate: computeBloomFilterFalsePosRate,
-    computeFalseHitProb: computeFalseHitProb,
-    computeBloomFilterSize: computeBloomFilterSize,
-    makeMinimizersBloomFilter: makeMinimizersBloomFilter,
+export {
+     zeroPadBitstring,
+     reverseComplement,
+     loadFasta,
+     getFilteredGenomeSeqs,
+     extractMinimizers,
+     computeBloomFilterFalsePosRate,
+     computeFalseHitProb,
+     computeBloomFilterSize,
+     makeMinimizersBloomFilter,
 }
+
+//module.exports = {
+//    zeroPadBitstring: zeroPadBitstring,
+//    reverseComplement: reverseComplement,
+//    loadFasta: loadFasta,
+//    getFilteredGenomeSeqs: getFilteredGenomeSeqs,
+//    extractMinimizers: extractMinimizers,
+//    computeBloomFilterFalsePosRate: computeBloomFilterFalsePosRate,
+//    computeFalseHitProb: computeFalseHitProb,
+//    computeBloomFilterSize: computeBloomFilterSize,
+//    makeMinimizersBloomFilter: makeMinimizersBloomFilter,
+//}
 
