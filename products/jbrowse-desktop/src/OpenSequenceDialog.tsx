@@ -13,58 +13,26 @@ import {
   makeStyles,
 } from '@material-ui/core'
 import FileSelector from '@jbrowse/core/ui/FileSelector'
+import ErrorMessage from '@jbrowse/core/ui/ErrorMessage'
 import { FileLocation } from '@jbrowse/core/util/types'
+import { ipcRenderer } from 'electron'
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-    overflow: 'hidden',
-    padding: theme.spacing(0, 3),
-  },
-  paper: {
-    margin: `${theme.spacing(1)}px auto`,
+  message: {
+    background: '#ddd',
+    margin: theme.spacing(2),
     padding: theme.spacing(2),
   },
-  createButton: {
-    marginTop: '1em',
-    justifyContent: 'center',
+  paper: {
+    padding: theme.spacing(2),
+    margin: theme.spacing(2),
   },
-  paperContent: {
-    flex: 'auto',
-    margin: `${theme.spacing(1)}px auto`,
-    padding: theme.spacing(1),
-    overflow: 'auto',
+  stagedAssemblies: {
+    background: '#dfd',
+    margin: theme.spacing(4),
+    padding: theme.spacing(2),
   },
 }))
-
-function AdapterSelector({
-  adapterSelection,
-  setAdapterSelection,
-  adapterTypes,
-}: {
-  adapterSelection: string
-  setAdapterSelection: Function
-  adapterTypes: string[]
-}) {
-  return (
-    <TextField
-      value={adapterSelection}
-      label="Type"
-      select
-      helperText="Type of adapter to use"
-      fullWidth
-      onChange={event => {
-        setAdapterSelection(event.target.value)
-      }}
-    >
-      {adapterTypes.map(str => (
-        <MenuItem key={str} value={str}>
-          {str}
-        </MenuItem>
-      ))}
-    </TextField>
-  )
-}
 
 function AdapterInput({
   adapterSelection,
@@ -91,10 +59,7 @@ function AdapterInput({
   setTwoBitLocation: Function
   setChromSizesLocation: Function
 }) {
-  if (
-    adapterSelection === 'IndexedFastaAdapter' ||
-    adapterSelection === 'BgzipFastaAdapter'
-  ) {
+  if (adapterSelection === 'IndexedFastaAdapter') {
     return (
       <Grid container spacing={2}>
         <Grid item>
@@ -111,15 +76,33 @@ function AdapterInput({
             setLocation={loc => setFaiLocation(loc)}
           />
         </Grid>
-        {adapterSelection === 'BgzipFastaAdapter' ? (
-          <Grid item>
-            <FileSelector
-              name="gziLocation"
-              location={gziLocation}
-              setLocation={loc => setGziLocation(loc)}
-            />
-          </Grid>
-        ) : null}
+      </Grid>
+    )
+  }
+  if (adapterSelection === 'BgzipFastaAdapter') {
+    return (
+      <Grid container spacing={2}>
+        <Grid item>
+          <FileSelector
+            name="fastaLocation"
+            location={fastaLocation}
+            setLocation={loc => setFastaLocation(loc)}
+          />
+        </Grid>
+        <Grid item>
+          <FileSelector
+            name="faiLocation"
+            location={faiLocation}
+            setLocation={loc => setFaiLocation(loc)}
+          />
+        </Grid>
+        <Grid item>
+          <FileSelector
+            name="gziLocation"
+            location={gziLocation}
+            setLocation={loc => setGziLocation(loc)}
+          />
+        </Grid>
       </Grid>
     )
   }
@@ -145,10 +128,28 @@ function AdapterInput({
     )
   }
 
+  if (adapterSelection === 'FastaAdapter') {
+    return (
+      <Grid container spacing={2}>
+        <Grid item>
+          <FileSelector
+            name="fastaLocation"
+            location={fastaLocation}
+            setLocation={loc => setFastaLocation(loc)}
+          />
+        </Grid>
+      </Grid>
+    )
+  }
+
   return null
 }
 
 const blank = { uri: '' } as FileLocation
+
+function isBlank(location: FileLocation) {
+  return 'uri' in location && location.uri === ''
+}
 
 const OpenSequenceDialog = ({
   onClose,
@@ -160,11 +161,15 @@ const OpenSequenceDialog = ({
   const adapterTypes = [
     'IndexedFastaAdapter',
     'BgzipFastaAdapter',
+    'FastaAdapter',
     'TwoBitAdapter',
   ]
+  type AssemblyConf = Awaited<ReturnType<typeof createAssemblyConfig>>
+  const [assemblyConfs, setAssemblyConfs] = useState<AssemblyConf[]>([])
   const [error, setError] = useState<unknown>()
   const [assemblyName, setAssemblyName] = useState('')
   const [assemblyDisplayName, setAssemblyDisplayName] = useState('')
+  const [loading, setLoading] = useState('')
   const [adapterSelection, setAdapterSelection] = useState(adapterTypes[0])
   const [fastaLocation, setFastaLocation] = useState(blank)
   const [faiLocation, setFaiLocation] = useState(blank)
@@ -172,8 +177,36 @@ const OpenSequenceDialog = ({
   const [twoBitLocation, setTwoBitLocation] = useState(blank)
   const [chromSizesLocation, setChromSizesLocation] = useState(blank)
 
-  function createAssemblyConfig() {
+  function clearState() {
+    setFastaLocation(blank)
+    setFaiLocation(blank)
+    setGziLocation(blank)
+    setTwoBitLocation(blank)
+    setChromSizesLocation(blank)
+    setAssemblyName('')
+    setAssemblyDisplayName('')
+  }
+
+  async function createAssemblyConfigHelper() {
+    if (adapterSelection === 'FastaAdapter') {
+      setLoading('Creating .fai file for FASTA')
+      const faiLocation = await ipcRenderer.invoke('indexFasta', fastaLocation)
+      return {
+        name: assemblyName,
+        displayName: assemblyDisplayName,
+        sequence: {
+          adapter: {
+            type: 'IndexedFastaAdapter',
+            fastaLocation,
+            faiLocation: { localPath: faiLocation },
+          },
+        },
+      }
+    }
     if (adapterSelection === 'IndexedFastaAdapter') {
+      if (isBlank(fastaLocation) || isBlank(faiLocation)) {
+        throw new Error('Need both fastaLocation and faiLocation')
+      }
       return {
         name: assemblyName,
         displayName: assemblyDisplayName,
@@ -186,6 +219,15 @@ const OpenSequenceDialog = ({
         },
       }
     } else if (adapterSelection === 'BgzipFastaAdapter') {
+      if (
+        isBlank(fastaLocation) ||
+        isBlank(faiLocation) ||
+        isBlank(gziLocation)
+      ) {
+        throw new Error(
+          'Need both fastaLocation and faiLocation and gziLocation',
+        )
+      }
       return {
         name: assemblyName,
         displayName: assemblyDisplayName,
@@ -199,6 +241,9 @@ const OpenSequenceDialog = ({
         },
       }
     } else if (adapterSelection === 'TwoBitAdapter') {
+      if (isBlank(twoBitLocation)) {
+        throw new Error('Need twoBitLocation')
+      }
       return {
         name: assemblyName,
         displayName: assemblyDisplayName,
@@ -213,89 +258,144 @@ const OpenSequenceDialog = ({
     }
     throw new Error('Unknown adapter type')
   }
+
+  async function createAssemblyConfig() {
+    const conf = await createAssemblyConfigHelper()
+
+    return {
+      ...conf,
+      sequence: {
+        type: 'ReferenceSequenceTrack',
+        trackId: `${assemblyName}-${Date.now()}`,
+        ...conf.sequence,
+      },
+    }
+  }
   return (
     <Dialog open onClose={() => onClose()}>
-      <DialogTitle>Open sequence</DialogTitle>
+      <DialogTitle>Open sequence(s)</DialogTitle>
       <DialogContent>
-        {error ? (
-          <Typography variant="h6" color="error">{`${error}`}</Typography>
-        ) : null}
-        <div className={classes.root}>
-          <Typography>
-            Use this dialog to open a new indexed FASTA file, bgzipped+indexed
-            FASTA file, or .2bit file of a genome assembly or other sequence
+        <Typography>
+          Use this dialog to open one or more indexed FASTA files,
+          bgzipped+indexed FASTA files, or .2bit files of a genome assembly or
+          other sequence
+        </Typography>
+
+        {assemblyConfs.length ? (
+          <Typography className={classes.stagedAssemblies}>
+            Currently staged assemblies:{' '}
+            {assemblyConfs.map(conf => conf.name).join(', ')}
           </Typography>
-          <Paper className={classes.paper}>
-            <TextField
-              id="assembly-name"
-              inputProps={{ 'data-testid': 'assembly-name' }}
-              defaultValue=""
-              label="Assembly name"
-              helperText="The assembly name e.g. hg38"
-              variant="outlined"
-              value={assemblyName}
-              onChange={event => setAssemblyName(event.target.value)}
-            />
-            <TextField
-              id="assembly-name"
-              inputProps={{ 'data-testid': 'assembly-display-name' }}
-              label="Assembly display name"
-              helperText='A human readable display name for the assembly e.g. "Homo sapiens (hg38)"'
-              variant="outlined"
-              defaultValue=""
-              value={assemblyDisplayName}
-              onChange={event => setAssemblyDisplayName(event.target.value)}
-            />
-            <AdapterSelector
-              adapterSelection={adapterSelection}
-              setAdapterSelection={setAdapterSelection}
-              adapterTypes={adapterTypes}
-            />
-            <div className={classes.paperContent}>
-              <AdapterInput
-                adapterSelection={adapterSelection}
-                fastaLocation={fastaLocation}
-                chromSizesLocation={chromSizesLocation}
-                setFastaLocation={setFastaLocation}
-                faiLocation={faiLocation}
-                setFaiLocation={setFaiLocation}
-                gziLocation={gziLocation}
-                setGziLocation={setGziLocation}
-                twoBitLocation={twoBitLocation}
-                setTwoBitLocation={setTwoBitLocation}
-                setChromSizesLocation={setChromSizesLocation}
-              />
-            </div>
-          </Paper>
-        </div>
+        ) : null}
+
+        {loading ? (
+          <Typography className={classes.message}>{loading}</Typography>
+        ) : null}
+
+        {error ? <ErrorMessage error={error} /> : null}
+
+        <Paper className={classes.paper}>
+          <TextField
+            inputProps={{ 'data-testid': 'assembly-name' }}
+            label="Assembly name"
+            helperText="The assembly name e.g. hg38"
+            variant="outlined"
+            value={assemblyName}
+            onChange={event => setAssemblyName(event.target.value)}
+          />
+
+          <TextField
+            inputProps={{ 'data-testid': 'assembly-display-name' }}
+            label="Assembly display name"
+            helperText='(optional) A human readable display name for the assembly e.g. "Homo sapiens (hg38)"'
+            variant="outlined"
+            value={assemblyDisplayName}
+            onChange={event => setAssemblyDisplayName(event.target.value)}
+          />
+
+          <TextField
+            value={adapterSelection}
+            label="Type"
+            select
+            helperText="Type of adapter to use"
+            fullWidth
+            onChange={event => {
+              setAdapterSelection(event.target.value)
+            }}
+          >
+            {adapterTypes.map(str => (
+              <MenuItem key={str} value={str}>
+                {str}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <AdapterInput
+            adapterSelection={adapterSelection}
+            fastaLocation={fastaLocation}
+            chromSizesLocation={chromSizesLocation}
+            setFastaLocation={setFastaLocation}
+            faiLocation={faiLocation}
+            setFaiLocation={setFaiLocation}
+            gziLocation={gziLocation}
+            setGziLocation={setGziLocation}
+            twoBitLocation={twoBitLocation}
+            setTwoBitLocation={setTwoBitLocation}
+            setChromSizesLocation={setChromSizesLocation}
+          />
+        </Paper>
       </DialogContent>
       <DialogActions>
+        <Button
+          onClick={async () => {
+            try {
+              if (!assemblyName) {
+                throw new Error('No assembly name set')
+              }
+              setError(undefined)
+              const assemblyConf = await createAssemblyConfig()
+              setAssemblyConfs([...assemblyConfs, assemblyConf])
+              clearState()
+            } catch (e) {
+              setError(e)
+              console.error(e)
+            } finally {
+              setLoading('')
+            }
+          }}
+          disabled={!!loading}
+          variant="contained"
+        >
+          Add another assembly
+        </Button>
         <Button onClick={() => onClose()} color="secondary" variant="contained">
           Cancel
         </Button>
         <Button
           onClick={async () => {
             try {
-              const assemblyConf = createAssemblyConfig()
+              let confs = assemblyConfs
 
-              await onClose({
-                ...assemblyConf,
-                sequence: {
-                  type: 'ReferenceSequenceTrack',
-                  trackId: `${assemblyName}-${Date.now()}`,
-                  ...(assemblyConf.sequence || {}),
-                },
-              })
+              // if we want to add another one
+              if (assemblyName) {
+                setError(undefined)
+                const assemblyConf = await createAssemblyConfig()
+                confs = [...assemblyConfs, assemblyConf]
+                setAssemblyConfs(confs)
+              }
+              await onClose(confs)
             } catch (e) {
               setError(e)
               console.error(e)
+            } finally {
+              setLoading('')
             }
           }}
           color="primary"
+          disabled={!!loading}
           variant="contained"
-          autoFocus
         >
-          Open
+          Submit
         </Button>
       </DialogActions>
     </Dialog>

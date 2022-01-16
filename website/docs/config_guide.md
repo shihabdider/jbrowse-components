@@ -4,6 +4,8 @@ title: Config guide
 toplevel: true
 ---
 
+import Figure from './figure'
+
 ## Intro to the config.json
 
 A JBrowse 2 configuration file, a config.json, is structured as follows
@@ -152,11 +154,11 @@ jbrowse add-assembly myfile.fa --load copy --out /var/www/html/jbrowse2
 ```
 
 See our CLI docs for the add-assembly for more details here --
-[add-assembly](cli#jbrowse-add-assembly-sequence)
+[add-assembly](../cli#jbrowse-add-assembly-sequence)
 
 Note: assemblies can also be added graphically using the assembly manager when
 you are using the admin-server. See the [quickstart
-guide](quickstart_gui#adding-an-assembly) for more details.
+guide](../quickstart_gui#adding-an-assembly) for more details.
 
 ## Assembly config
 
@@ -511,7 +513,10 @@ We just simply supply a hicLocation currently for the HicAdapter
   change it to blue so then the shading will be done in blue with #00f
 - `color` - this is a color callback that adapts the current Hi-C contact
   feature with the baseColor to generate a shaded block. The default color
-  callback function is `jexl:baseColor.alpha(Math.min(1,count/(maxScore/20))).hsl().string()` where it receives the count for a particular block, the maxScore over the region, and the baseColor from the baseColor config
+  callback function is
+  `jexl:baseColor.alpha(Math.min(1,count/(maxScore/20))).hsl().string()` where
+  it receives the count for a particular block, the maxScore over the region,
+  and the baseColor from the baseColor config
 
 ### VariantTrack config
 
@@ -673,11 +678,15 @@ jbrowse add-track myfile.paf --type SyntenyTrack --assemblyNames \
 
 ### Advanced adapters
 
-There are two useful adapter types that can be used for more advanced use cases, such as generating configuration for data returned by an API. These are the FromConfigAdapter and FromConfigSequenceAdapter. They can be used as the `adapter` value for any track type.
+There are two useful adapter types that can be used for more advanced use
+cases, such as generating configuration for data returned by an API. These are
+the FromConfigAdapter and FromConfigSequenceAdapter. They can be used as the
+`adapter` value for any track type.
 
 #### FromConfigAdapter
 
-This adapter can be used to generate features directly from values stored in the configuration.
+This adapter can be used to generate features directly from values stored in
+the configuration.
 
 Example FromConfigAdapter
 
@@ -798,7 +807,7 @@ An example per-track config may look like this
 ```
 
 Information on generating trix indexes via the cli can be found
-[here](cli.md#jbrowse-text-index)
+[here](../cli#jbrowse-text-index)
 
 ### TrixTextSearchAdapter config
 
@@ -808,7 +817,7 @@ It is based on the UCSC trix file format described here
 https://genome.ucsc.edu/goldenPath/help/trix.html
 
 To create trix indexes you can use our command line tools. More info found at
-our [jbrowse text-index guide](cli.md#jbrowse-text-index). This tool will
+our [jbrowse text-index guide](../cli#jbrowse-text-index). This tool will
 automatically generate a config like this. The config slots are described below
 for details
 
@@ -1272,7 +1281,7 @@ theme:
 
 <Figure src="/img/default_theme.png" caption="Example screenshot showing the default theme"/>
 
-<Figure src="/img/default_theme.png" caption="Example screenshot showing the customized theme"/>
+<Figure src="/img/customized_theme.png" caption="Example screenshot showing the customized theme"/>
 
 The customized theme screenshot uses the below configuration
 
@@ -1415,18 +1424,21 @@ jexl:trimStart('  kitty ') // kitty, starting whitespace trimmed
 jexl:trimEnd('  kitty ') // kitty, ending whitespace trimmed
 jexl:toUpperCase('kitty') // KITTY
 jexl:toLowerCase('KITTY') // kitty
+jexl:split('KITTY KITTY', ' ') // ['KITTY', 'KITTY']
 ```
 
 Math functions
 
 ```
 
-jexl:min(0,2)
 jexl:max(0,2)
-jexl:abs(-5)
+jexl:min(0,2)
+jexl:sqrt(4)
 jexl:ceil(0.5)
 jexl:floor(0.5)
 jexl:round(0.5)
+jexl:abs(-0.5)
+jexl:log10(50000)
 jexl:parseInt('2')
 jexl:parseFloat('2.054')
 

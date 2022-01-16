@@ -13,28 +13,26 @@ import {
   makeStyles,
 } from '@material-ui/core'
 
+import { JBrowsePlugin } from '@jbrowse/core/util/types'
+import { getSession, isElectron } from '@jbrowse/core/util'
+
+// icons
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ClearIcon from '@material-ui/icons/Clear'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 
-import type { JBrowsePlugin } from '@jbrowse/core/util/types'
-
-import { getSession, isElectron } from '@jbrowse/core/util'
+// locals
 import InstalledPluginsList from './InstalledPluginsList'
 import PluginCard from './PluginCard'
 import CustomPluginForm from './CustomPluginForm'
-
 import { PluginStoreModel } from '../model'
 
 const useStyles = makeStyles(theme => ({
-  accordion: {
-    marginTop: '1em',
+  root: {
+    margin: theme.spacing(1),
   },
   expandIcon: {
     color: '#fff',
-  },
-  searchBox: {
-    marginBottom: theme.spacing(2),
   },
   adminBadge: {
     margin: '0.5em',
@@ -54,25 +52,30 @@ const useStyles = makeStyles(theme => ({
 
 function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
   const classes = useStyles()
-  const [pluginArray, setPluginArray] = useState<JBrowsePlugin[]>([])
+  const [pluginArray, setPluginArray] = useState<JBrowsePlugin[]>()
   const [error, setError] = useState<unknown>()
   const [customPluginFormOpen, setCustomPluginFormOpen] = useState(false)
   const { adminMode } = getSession(model)
   const { pluginManager } = getEnv(model)
 
   useEffect(() => {
-    let killed = false
+    const controller = new AbortController()
+    const { signal } = controller
 
     ;(async () => {
       try {
-        const fetchResult = await fetch(
+        const response = await fetch(
           'https://jbrowse.org/plugin-store/plugins.json',
+          { signal },
         )
-        if (!fetchResult.ok) {
-          throw new Error('Failed to fetch plugin data')
+        if (!response.ok) {
+          const err = await response.text()
+          throw new Error(
+            `Failed to fetch plugin data: ${response.status} ${response.statusText} ${err}`,
+          )
         }
-        const array = await fetchResult.json()
-        if (!killed) {
+        const array = await response.json()
+        if (!signal.aborted) {
           setPluginArray(array.plugins)
         }
       } catch (e) {
@@ -82,12 +85,12 @@ function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
     })()
 
     return () => {
-      killed = true
+      controller.abort()
     }
   }, [])
 
   return (
-    <div>
+    <div className={classes.root}>
       {adminMode && (
         <>
           {!isElectron && (
@@ -111,13 +114,12 @@ function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
           </div>
           <CustomPluginForm
             open={customPluginFormOpen}
-            onClose={setCustomPluginFormOpen}
+            onClose={() => setCustomPluginFormOpen(false)}
             model={model}
           />
         </>
       )}
       <TextField
-        className={classes.searchBox}
         label="Filter plugins"
         value={model.filterText}
         onChange={event => model.setFilterText(event.target.value)}
@@ -153,13 +155,20 @@ function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
         </AccordionSummary>
         {error ? (
           <Typography color="error">{`${error}`}</Typography>
-        ) : pluginArray.length ? (
+        ) : pluginArray ? (
           pluginArray
-            .filter(plugin =>
-              plugin.name
+            .filter(plugin => {
+              // If pugin only has cjsUrl, don't display outside desktop
+              if (
+                !isElectron &&
+                !(plugin.esmUrl || plugin.url || plugin.umdUrl)
+              ) {
+                return false
+              }
+              return plugin.name
                 .toLowerCase()
-                .includes(model.filterText.toLowerCase()),
-            )
+                .includes(model.filterText.toLowerCase())
+            })
             .map(plugin => (
               <PluginCard
                 key={(plugin as JBrowsePlugin).name}

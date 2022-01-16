@@ -13,6 +13,7 @@ export default [
   '@mui/x-data-grid',
 
   '@jbrowse/core/Plugin',
+  '@jbrowse/core/pluggableElementTypes',
   '@jbrowse/core/pluggableElementTypes/ViewType',
   '@jbrowse/core/pluggableElementTypes/AdapterType',
   '@jbrowse/core/pluggableElementTypes/DisplayType',
@@ -30,6 +31,7 @@ export default [
   '@jbrowse/core/ui',
   '@jbrowse/core/util',
   '@jbrowse/core/util/color',
+  '@jbrowse/core/util/layouts',
   '@jbrowse/core/util/tracks',
   '@jbrowse/core/util/Base1DViewModel',
   '@jbrowse/core/util/io',

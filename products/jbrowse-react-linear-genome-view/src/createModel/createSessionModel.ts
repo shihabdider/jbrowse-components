@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { lazy } from 'react'
 import {
-  NotificationLevel,
   AbstractSessionModel,
   TrackViewModel,
   DialogComponentType,
 } from '@jbrowse/core/util/types'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
+import addSnackbarToModel from '@jbrowse/core/ui/SnackbarModel'
 import { getContainingView } from '@jbrowse/core/util'
 import { readConfObject } from '@jbrowse/core/configuration'
-import { observable } from 'mobx'
 import {
   getMembers,
   getParent,
@@ -31,7 +30,7 @@ import { ReferringNode } from '../types'
 const AboutDialog = lazy(() => import('@jbrowse/core/ui/AboutDialog'))
 
 export default function sessionModelFactory(pluginManager: PluginManager) {
-  return types
+  const model = types
     .model('ReactLinearGenomeViewSession', {
       name: types.identifier,
       margin: 0,
@@ -62,7 +61,7 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
        */
       task: undefined,
 
-      queueOfDialogs: observable.array([] as [DialogComponentType, any][]),
+      queueOfDialogs: [] as [DialogComponentType, any][],
     }))
     .views(self => ({
       get DialogComponent() {
@@ -155,9 +154,12 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
         callback: (doneCallback: Function) => [DialogComponentType, any],
       ): void {
         const [component, props] = callback(() => {
-          self.queueOfDialogs.shift()
+          this.removeActiveDialog()
         })
-        self.queueOfDialogs.push([component, props])
+        self.queueOfDialogs = [...self.queueOfDialogs, [component, props]]
+      },
+      removeActiveDialog() {
+        self.queueOfDialogs = self.queueOfDialogs.slice(1)
       },
       makeConnection(
         configuration: AnyConfigurationModel,
@@ -345,30 +347,8 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
         ]
       },
     }))
-    .extend(() => {
-      const snackbarMessages = observable.array()
 
-      return {
-        views: {
-          get snackbarMessages() {
-            return snackbarMessages
-          },
-        },
-        actions: {
-          notify(message: string, level?: NotificationLevel) {
-            return this.pushSnackbarMessage(message, level)
-          },
-
-          pushSnackbarMessage(message: string, level?: NotificationLevel) {
-            return snackbarMessages.push([message, level])
-          },
-
-          popSnackbarMessage() {
-            return snackbarMessages.pop()
-          },
-        },
-      }
-    })
+  return addSnackbarToModel(model)
 }
 
 export type SessionStateModel = ReturnType<typeof sessionModelFactory>
