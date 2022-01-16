@@ -8,8 +8,8 @@ import { SearchType, BaseTextSearchAdapter } from '../data_adapters/BaseAdapter'
 import { readConfObject } from '../configuration'
 
 export interface BaseArgs {
-  searchType: SearchType
   queryString: string
+  searchType?: SearchType
   signal?: AbortSignal
   limit?: number
   pageNumber?: number
@@ -24,10 +24,7 @@ export interface SearchScope {
 export default class TextSearchManager {
   adapterCache: QuickLRU
 
-  pluginManager: PluginManager
-
-  constructor(pluginManager: PluginManager) {
-    this.pluginManager = pluginManager
+  constructor(public pluginManager: PluginManager) {
     this.adapterCache = new QuickLRU({
       maxSize: 15,
     })

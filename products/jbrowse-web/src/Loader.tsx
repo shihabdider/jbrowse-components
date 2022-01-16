@@ -4,6 +4,9 @@ import PluginManager, { PluginLoadRecord } from '@jbrowse/core/PluginManager'
 import PluginLoader, {
   PluginDefinition,
   PluginRecord,
+  isUMDPluginDefinition,
+  isESMPluginDefinition,
+  isCJSPluginDefinition,
 } from '@jbrowse/core/PluginLoader'
 import { observer } from 'mobx-react'
 import { inDevelopment } from '@jbrowse/core/util'
@@ -18,7 +21,7 @@ import { AnyConfigurationModel } from '@jbrowse/core/configuration/configuration
 import { types, addDisposer, Instance, SnapshotOut } from 'mobx-state-tree'
 import { autorun } from 'mobx'
 import { FatalErrorDialog } from '@jbrowse/core/ui'
-import 'fontsource-roboto'
+import '@fontsource/roboto'
 import 'requestidlecallback-polyfill'
 import 'core-js/stable'
 import queryString from 'query-string'
@@ -28,36 +31,22 @@ import {
   writeGAAnalytics,
 } from '@jbrowse/core/util/analytics'
 import { readConfObject } from '@jbrowse/core/configuration'
+
+// locals
 import { readSessionFromDynamo } from './sessionSharing'
 import Loading from './Loading'
 import corePlugins from './corePlugins'
 import JBrowse from './JBrowse'
 import JBrowseRootModelFactory from './rootModel'
-import { makeStyles } from '@material-ui/core'
-
 import { fromUrlSafeB64 } from './util'
 import packagedef from '../package.json'
 import factoryReset from './factoryReset'
 
+// lazy components
 const SessionWarningDialog = lazy(() => import('./SessionWarningDialog'))
 const ConfigWarningDialog = lazy(() => import('./ConfigWarningDialog'))
+const ErrorMessage = lazy(() => import('@jbrowse/core/ui/ErrorMessage'))
 const StartScreen = lazy(() => import('./StartScreen'))
-
-const useStyles = makeStyles(theme => ({
-  message: {
-    border: '1px solid black',
-    overflow: 'auto',
-    maxHeight: 200,
-    margin: theme.spacing(1),
-    padding: theme.spacing(1),
-  },
-
-  errorBox: {
-    background: 'lightgrey',
-    border: '1px solid black',
-    margin: 20,
-  },
-}))
 
 function NoConfigMessage() {
   const links = [
@@ -124,18 +113,51 @@ function NoConfigMessage() {
   )
 }
 
-async function checkPlugins(pluginsToCheck: { url: string }[]) {
-  const fetchResult = await fetch(
-    'https://jbrowse.org/plugin-store/plugins.json',
-  )
-  if (!fetchResult.ok) {
-    throw new Error('Failed to fetch plugin data')
+async function checkPlugins(pluginsToCheck: PluginDefinition[]) {
+  const response = await fetch('https://jbrowse.org/plugin-store/plugins.json')
+  if (!response.ok) {
+    throw new Error(
+      `HTTP ${response.status} ${response.statusText} fetching plugins`,
+    )
   }
-  const array = (await fetchResult.json()) as {
-    plugins: { url: string }[]
+  const storePlugins = (await response.json()) as {
+    plugins: PluginDefinition[]
   }
-  const allowedPluginUrls = array.plugins.map(p => p.url)
-  return pluginsToCheck.every(p => allowedPluginUrls.includes(p.url))
+  return pluginsToCheck.every(p => {
+    if (isUMDPluginDefinition(p)) {
+      return Boolean(
+        storePlugins.plugins.find(
+          storePlugin =>
+            isUMDPluginDefinition(storePlugin) &&
+            (('url' in storePlugin &&
+              'url' in p &&
+              storePlugin.url === p.url) ||
+              ('umdUrl' in storePlugin &&
+                'umdUrl' in p &&
+                storePlugin.umdUrl === p.umdUrl)),
+        ),
+      )
+    }
+    if (isESMPluginDefinition(p)) {
+      return Boolean(
+        storePlugins.plugins.find(
+          storePlugin =>
+            isESMPluginDefinition(storePlugin) &&
+            storePlugin.esmUrl === p.esmUrl,
+        ),
+      )
+    }
+    if (isCJSPluginDefinition(p)) {
+      return Boolean(
+        storePlugins.plugins.find(
+          storePlugin =>
+            isCJSPluginDefinition(storePlugin) &&
+            storePlugin.cjsUrl === p.cjsUrl,
+        ),
+      )
+    }
+    return false
+  })
 }
 
 type Config = SnapshotOut<AnyConfigurationModel>
@@ -224,7 +246,7 @@ const SessionLoader = types
     setSessionTriaged(args?: {
       snap: unknown
       origin: string
-      reason: { url: string }[]
+      reason: PluginDefinition[]
     }) {
       self.sessionTriaged = args
     },
@@ -285,10 +307,10 @@ const SessionLoader = types
     async fetchConfig() {
       const { configPath = 'config.json' } = self
       const config = JSON.parse(
-        (await openLocation({
+        await openLocation({
           uri: configPath,
           locationType: 'UriLocation',
-        }).readFile('utf8')) as string,
+        }).readFile('utf8'),
       )
       const configUri = new URL(configPath, window.location.href)
       addRelativeUris(config, configUri)
@@ -488,43 +510,6 @@ export function Loader({
   )
 }
 
-const ErrorMessage = ({
-  err,
-  snapshotError,
-}: {
-  err: unknown
-  snapshotError?: string
-}) => {
-  const classes = useStyles()
-  const str = `${err}`
-  return (
-    <div>
-      <NoConfigMessage />
-      {str.match(/HTTP 404 fetching config.json/) ? (
-        <div className={classes.message} style={{ background: '#9f9' }}>
-          No config detected. If you want to learn how to complete your setup,
-          visit our{' '}
-          <a href="https://jbrowse.org/jb2/docs/quickstart_web">
-            Quick start guide
-          </a>
-        </div>
-      ) : (
-        <div className={classes.message} style={{ background: '#f88' }}>
-          {str}
-          {snapshotError ? (
-            <>
-              ... Failed element had snapshot:
-              <pre className={classes.errorBox}>
-                {JSON.stringify(JSON.parse(snapshotError), null, 2)}
-              </pre>
-            </>
-          ) : null}
-        </div>
-      )}
-    </div>
-  )
-}
-
 const Renderer = observer(
   ({
     loader,
@@ -538,8 +523,7 @@ const Renderer = observer(
     const [, setPassword] = useQueryParam('password', StringParam)
     const { sessionError, configError, ready, shareWarningOpen } = loader
     const [pm, setPluginManager] = useState<PluginManager>()
-    const [error, setError] = useState<Error>()
-    const [snapshotError, setSnapshotError] = useState('')
+    const [error, setError] = useState<unknown>()
 
     // only create the pluginManager/rootModel "on mount"
     useEffect(() => {
@@ -669,18 +653,7 @@ const Renderer = observer(
           }
         }
       } catch (e) {
-        const str = `${e}`
-        const match = str.match(
-          /.*at path "(.*)" snapshot `(.*)` is not assignable/,
-        )
-        // best effort to make a better error message than the default
-        // mobx-state-tree
-        if (match) {
-          setError(new Error(`Failed to load element at ${match[1]}`))
-          setSnapshotError(match[2])
-        } else {
-          setError(new Error(str.slice(0, 10000)))
-        }
+        setError(e)
         console.error(e)
       }
     }, [
@@ -696,7 +669,31 @@ const Renderer = observer(
     const err = configError || error
 
     if (err) {
-      return <ErrorMessage err={err} snapshotError={snapshotError} />
+      return (
+        <>
+          <NoConfigMessage />
+          {`${err}`.match(/HTTP 404 fetching config.json/) ? (
+            <div
+              style={{
+                margin: 8,
+                padding: 8,
+                border: '1px solid black',
+                background: '#9f9',
+              }}
+            >
+              No config.json found. If you want to learn how to complete your
+              setup, visit our{' '}
+              <a href="https://jbrowse.org/jb2/docs/quickstart_web">
+                Quick start guide
+              </a>
+            </div>
+          ) : (
+            <Suspense fallback={<div>Loading...</div>}>
+              <ErrorMessage error={err} />
+            </Suspense>
+          )}
+        </>
+      )
     }
 
     if (loader.sessionTriaged) {

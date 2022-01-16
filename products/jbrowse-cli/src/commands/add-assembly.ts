@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import JBrowseCommand, { Assembly, Sequence, Config } from '../base'
 
-const fsPromises = fs.promises
+const { rename, copyFile, mkdir, symlink } = fs.promises
 
 function isValidJSON(string: string) {
   try {
@@ -21,13 +21,29 @@ export default class AddAssembly extends JBrowseCommand {
   static description = 'Add an assembly to a JBrowse 2 configuration'
 
   static examples = [
+    '# add assembly to installation in current directory. assumes .fai file also exists, and copies GRCh38.fa and GRCh38.fa.fai to current directory',
     '$ jbrowse add-assembly GRCh38.fa --load copy',
-    '$ jbrowse add-assembly GRCh38.fasta.with.custom.extension.xyz --type indexedFasta --load move',
-    '$ jbrowse add-assembly myFile.fa.gz --name hg38 --alias GRCh38 --displayName "Homo sapiens (hg38)" --load inPlace',
+    '',
+    '# add assembly to a specific jb2 installation path using --out, and copies the .fa and .fa.fai file to /path/to/jb2',
+    '$ jbrowse add-assembly GRCh38.fa --out /path/to/jb2/ --load copy',
+    '',
+    '# force indexedFasta for add-assembly without relying on file extension',
+    '$ jbrowse add-assembly GRCh38.xyz --type indexedFasta --load copy',
+    '',
+    '# add displayName for an assembly',
+    '$ jbrowse add-assembly myFile.fa.gz --name hg38 --displayName "Homo sapiens (hg38)"',
+    '',
+    '# use chrom.sizes file for assembly instead of a fasta file',
     '$ jbrowse add-assembly GRCh38.chrom.sizes --load inPlace',
+    '',
+    '# add assembly from preconfigured json file, expert option',
     '$ jbrowse add-assembly GRCh38.config.json --load copy',
+    '',
+    '# add assembly from a 2bit file, also note pointing direct to a URL so no --load flag needed',
     '$ jbrowse add-assembly https://example.com/data/sample.2bit',
-    '$ jbrowse add-assembly GRCh38.fa --target /path/to/jb2/installation/customconfig.json --load copy',
+    '',
+    '# add a bgzip indexed fasta inferred by fa.gz extension. assumes .fa.gz.gzi and .fa.gz.fai files also exists',
+    '$ jbrowse add-assembly myfile.fa.gz --load copy',
   ]
 
   static args = [
@@ -372,7 +388,7 @@ custom         Either a JSON file location or inline JSON that defines a custom
     const output = runFlags.target || runFlags.out || '.'
 
     if (!(await exists(output))) {
-      await fsPromises.mkdir(output, { recursive: true })
+      await mkdir(output, { recursive: true })
     }
 
     const isDir = fs.statSync(output).isDirectory()
@@ -557,7 +573,7 @@ custom         Either a JSON file location or inline JSON that defines a custom
             if (!filePath) {
               return undefined
             }
-            return fsPromises.copyFile(
+            return copyFile(
               filePath,
               path.join(path.dirname(destination), path.basename(filePath)),
             )
@@ -571,7 +587,7 @@ custom         Either a JSON file location or inline JSON that defines a custom
             if (!filePath) {
               return undefined
             }
-            return fsPromises.symlink(
+            return symlink(
               filePath,
               path.join(path.dirname(destination), path.basename(filePath)),
             )
@@ -585,7 +601,7 @@ custom         Either a JSON file location or inline JSON that defines a custom
             if (!filePath) {
               return undefined
             }
-            return fsPromises.rename(
+            return rename(
               filePath,
               path.join(path.dirname(destination), path.basename(filePath)),
             )
