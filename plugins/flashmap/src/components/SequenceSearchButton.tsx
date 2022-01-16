@@ -326,8 +326,6 @@ async function getBigsiRawHits(
         bigsiName,
     }
 
-    console.log('query', querySequence)
-
     const response = await rpcManager.call(
             sessionId,
             "BigsiQueryRPC",
@@ -360,22 +358,23 @@ function SequenceSearchButton({ model }: { model: any }) {
   }
 
   async function runSearch() {
+    let sequenceFound = false
     for (const bigsiName of selectedBigsis) {
         const rawHits = await getBigsiRawHits(model, sequence, bigsiName)
-        setLoading(false)
         const allFeatures = makeBigsiHitsFeatures(model, rawHits)
-        if (Object.keys(allFeatures).length) {
+        setLoading(false)
+        if (allFeatures.length) {
+            sequenceFound = true
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
             const refAssemblyName = bigsiName
-            runMashmapOnBins(
-              model, flashmapResultsWidget, refAssemblyName, 
+            runMashmapOnBins(model, flashmapResultsWidget, refAssemblyName, 
               allFeatures, queryId, percIdentity, sequence
             )
             setQueryId(() => queryId + 1)
-        } else {
-            setError(new Error('Sequence not found!'))
         }
+
     }
+    return sequenceFound
   }
 
   function handleClose() {
@@ -513,9 +512,12 @@ function SequenceSearchButton({ model }: { model: any }) {
                 async () => {
                   if (selectedBigsis.length) {
                         setLoading(true)
-                        await runSearch(); 
-                        if (!loading) {
+                        const sequenceFound = await runSearch() 
+                        if (!loading && sequenceFound) {
+                          console.log('Loading and sequence found', loading, sequenceFound)
                           handleClose()
+                        } else {
+                          setError(new Error('Sequence not found!'))
                         }
                    } else {
                         setError(new Error('Please select a reference to search against.'))

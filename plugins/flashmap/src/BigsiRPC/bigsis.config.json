@@ -1,5 +1,5 @@
 {
-  "hg38": {
+  "hg38_aws": {
     "exactMatch": {
       "path": "https://flashmap.s3.us-west-1.amazonaws.com/public/hg38_whole_genome_exact.bin",
       "numRows": 705000,
@@ -11,7 +11,7 @@
       "numCols": 384
     }
   },
-  "hg38_local": {
+  "hg38": {
     "exactMatch": {
       "path": "http://localhost:3001/public/hg38_whole_genome_exact.bin",
       "numRows": 705000,
