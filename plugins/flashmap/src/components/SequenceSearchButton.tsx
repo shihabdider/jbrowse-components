@@ -334,6 +334,16 @@ async function getBigsiRawHits(
 
     return response
 };
+
+async function fetchExampleSeq(seqName: 'brca1' | 'ERV_2352429' | 'l1td1') {
+    const seqUrl = `https://flashmap.s3.us-west-1.amazonaws.com/public/${seqName}.fasta`
+    // for localhost
+    // const seqUrl = `http://localhost:3001/public/${seqName}.fasta`
+    const response = await fetch(seqUrl)
+    const seq = await response.text()
+
+    return seq
+}
   
 function SequenceSearchButton({ model }: { model: any }) {
   const classes = useStyles()
@@ -360,7 +370,8 @@ function SequenceSearchButton({ model }: { model: any }) {
   async function runSearch() {
     let sequenceFound = false
     for (const bigsiName of selectedBigsis) {
-        const rawHits = await getBigsiRawHits(model, sequence, bigsiName)
+        const cleanSeq = cleanSequence(sequence)
+        const rawHits = await getBigsiRawHits(model, cleanSeq, bigsiName)
         const allFeatures = makeBigsiHitsFeatures(model, rawHits)
         setLoading(false)
         if (allFeatures.length) {
@@ -467,6 +478,40 @@ function SequenceSearchButton({ model }: { model: any }) {
               <DialogContentText>
                 Upload your query sequence as a FASTA file or paste it below. 
                 Query sequence must be between 500bp to 300Kbp.
+              </DialogContentText>
+              <DialogContentText>
+                Example queries: 
+                <br></br>
+                <Link 
+                  component="button" 
+                  onClick={async ()=> {
+                    const brca1Seq = await fetchExampleSeq('brca1')
+                    setSequence(brca1Seq)
+                    }
+                  }
+                >
+                  BRCA1
+                </Link>, 
+                <Link 
+                  component="button" 
+                  onClick={async ()=> {
+                    const linesSeq = await fetchExampleSeq('l1td1')
+                    setSequence(linesSeq)
+                    }
+                  }
+                >
+                  LINES
+                </Link>, 
+                <Link 
+                  component="button" 
+                  onClick={async ()=> {
+                    const hervSeq = await fetchExampleSeq('ERV_2352429')
+                    setSequence(hervSeq)
+                    }
+                  }
+                >
+                  HERV
+                </Link>, 
               </DialogContentText>
 
             <input type="file" accept=".fna,.fa,.fasta,.FASTA" onChange={handleFileChange}></input>

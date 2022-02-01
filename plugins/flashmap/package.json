@@ -28,7 +28,9 @@
     "useSrc": "node ../../scripts/useSrc.js"
   },
   "dependencies": {
+    "bitset": "^5.1.1",
     "generic-filehandle": "^2.0.0",
+    "matrix-js": "^1.6.1",
     "perf_hooks": "^0.0.1"
   },
   "peerDependencies": {
