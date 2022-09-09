@@ -1,0 +1,7 @@
+{
+  "hg38": {
+    "path": "http://localhost:3001/public/hg38_whole_genome.bin",
+    "numRows": 1013000,
+    "numCols": 384
+  }
+}

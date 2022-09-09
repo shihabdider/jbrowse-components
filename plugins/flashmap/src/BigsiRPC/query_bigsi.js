@@ -230,29 +230,11 @@ async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols)
     return bigsiHits
 }
 
-async function fragQuery(querySeq, bigsiName){
-    const fragmentSize = 500
-    const bigsiPath = bigsiConfig[bigsiName].exactMatch.path
-    const queryFragmentsMinimizers = await winnowQueryFragments(querySeq, fragmentSize)
-    const numCols = bigsiConfig[bigsiName].exactMatch.numCols
-    const bloomFilterSize = bigsiConfig[bigsiName].exactMatch.numRows
-
-    const response = await fetch(bigsiPath)
-    const bigsiBuffer = await response.arrayBuffer()
-    const bigsiArray = new Uint16Array(bigsiBuffer);
-
-    const querySize = querySeq.length
-    const queryMask = await makeFragmentsBloomFilters(queryFragmentsMinimizers, bloomFilterSize)
-    const filteredBigsiHits = await queryBinaryBigsi(bigsiArray, queryMask, numCols)
-
-    return filteredBigsiHits
-}
-
 async function nonFragQuery(querySeq, bigsiName){
-    const bigsiPath = bigsiConfig[bigsiName].inexactMatch.path
+    const bigsiPath = bigsiConfig[bigsiName].path
     const queryFragmentsMinimizers = await winnowQueryFragments(querySeq)
-    const numCols = bigsiConfig[bigsiName].inexactMatch.numCols
-    const bloomFilterSize = bigsiConfig[bigsiName].inexactMatch.numRows
+    const numCols = bigsiConfig[bigsiName].numCols
+    const bloomFilterSize = bigsiConfig[bigsiName].numRows
 
     const response = await fetch(bigsiPath)
     const bigsiBuffer = await response.arrayBuffer()
@@ -269,10 +251,7 @@ async function nonFragQuery(querySeq, bigsiName){
 async function main(querySeq, bigsiName) {
     let filteredBigsiHits 
     const querySize = querySeq.length
-    if ((querySize >=500 && querySize < 5000)) {
-        filteredBigsiHits = await fragQuery(querySeq, bigsiName)
-    } else if (querySize > 5000 && querySize <=300_000) {
-        // Test: non-frag query
+    if (querySize > 5000 && querySize <=300_000) {
         filteredBigsiHits = await nonFragQuery(querySeq, bigsiName)
     } else {
         return console.error('Query must be between 500bp to 300Kbp')
