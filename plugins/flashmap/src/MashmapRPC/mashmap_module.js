@@ -21,7 +21,7 @@ function(createModule) {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = typeof createModule !== 'undefined' ? createModule : {noInitialRun: true};
+var Module = typeof createModule !== 'undefined' ? createModule : {};
 
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;

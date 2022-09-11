@@ -17,4 +17,22 @@ router.get('/public/:filename', function(req, res){
     res.send(bigsiRowBuf)
 })
 
+/* GET mashmap sketch file */
+router.get('/public/sketches/:filename', function(req, res){
+    const path = 
+        '/Users/shihabdider/Research/Flashmap/jbrowse_demo/jbrowse-components/plugins/flashmap/src/BigsiRPC/binarybigsi/public/sketches/' 
+        + req.params.filename
+    const sketchFile = fs.readFileSync(path)
+    res.send(sketchFile)
+})
+
+/* GET mashmap bin sketch file */
+router.get('/public/sketches/bins/:filename', function(req, res){
+    const path = 
+        '/Users/shihabdider/Research/Flashmap/jbrowse_demo/jbrowse-components/plugins/flashmap/src/BigsiRPC/binarybigsi/public/sketches/bins/' 
+        + req.params.filename
+    const sketchFile = fs.readFileSync(path)
+    res.send(sketchFile)
+})
+
 module.exports = router;

@@ -4,11 +4,16 @@ function processMashmapResults(results){
     console.log(results.split(' '))
 }
 
-async function main(ref, query, percIdentity){
+async function main(refSketchName, query, percIdentity){
     const Module = await createModule()
-    Module.FS.writeFile('ref.fa', ref)
+    const refSketchPath = `http://localhost:3001/public/sketches/${refSketchName}`
+    const response = await fetch(refSketchPath)
+    const refBuffer = await response.arrayBuffer()
+    const refSketchArray = new Uint8Array(refBuffer);
+    const segLength = Math.min(query.length - 500, 19999)
+    Module.FS.writeFile('ref.sketch', refSketchArray)
     Module.FS.writeFile('query.fa', query)
-    Module.callMain(['-r', 'ref.fa', '-q', 'query.fa', '-o', 'test.out', '-t', '1', '--pi', percIdentity, '-s', '1000'])
+    Module.callMain(['--rs', 'ref.sketch', '-q', 'query.fa', '-o', 'test.out', '-t', '1', '--pi', percIdentity, '-s', segLength.toString()])
     const output = Module.FS.readFile('test.out', { encoding: 'utf8' })
     return output
 }

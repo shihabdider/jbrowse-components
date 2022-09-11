@@ -20,7 +20,7 @@ export class MashmapQueryRPC extends RpcMethodType {
 
   async execute(
     args: {
-      ref: string
+      refSketchName: string
       query: string
       percIdentity: string
       sessionId: string
@@ -31,10 +31,9 @@ export class MashmapQueryRPC extends RpcMethodType {
       args,
       rpcDriverClassName,
     )
-    const { ref, query, percIdentity, sessionId } = deserializedArgs
-    const refSequence = '>ref\n' + ref
+    const { refSketchName, query, percIdentity, sessionId } = deserializedArgs
     const querySequence = '>query\n' + query
-    const results = await main(refSequence, querySequence, percIdentity)
+    const results = await main(refSketchName, querySequence, percIdentity)
     return results
   }
 }

@@ -31,7 +31,7 @@ import {
   TextField,
 } from '@material-ui/core'
 
-import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_whole_genome_bucket_map.json'
+import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_32M_bins_bucket_map.json'
 
 /* eslint-disable no-nested-ternary */
 
@@ -68,7 +68,7 @@ function makeBigsiHitsFeatures(
   const allFeatures = []
   const bucketmap = hg38BigsiConfig.bucketMap
   for (const bucket in rawHits) {
-    const bucketNum = parseInt(bucket)
+    const bucketNum: keyof typeof bucketmap = bucket as keyof typeof bucketmap;
     const bigsiFeatures = {
         id: uniqueId,
         name: `${bucketmap[bucketNum].refName}:${bucketmap[bucketNum].bucketStart}-${bucketmap[bucketNum].bucketEnd}`,
@@ -138,6 +138,30 @@ async function getMashmapRawHits(
   return response as string
 }
 
+async function handleMashmapQuerySketch(
+  model: any,
+  querySequence: string,
+  refSketchName: string,
+  percIdentity: string
+) : Promise<string> {
+  const session = getSession(model)
+  const { rpcManager } = session
+
+  const sessionId = 'mashmapQuery'
+  const query = querySequence
+
+  const params = {
+    sessionId,
+    refSketchName,
+    query,
+    percIdentity
+  }
+
+  const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
+
+  return response as string
+}
+
 async function handleMashmapQuery(
   model: LinearGenomeViewModel,
   querySequence: string, 
@@ -179,6 +203,43 @@ function parseMashmapResults(rawHits: string) {
   return results
 }
 
+async function runMashmapOnSketch(
+  model: LinearGenomeViewModel, 
+  flashmapResultsWidget: any, 
+  refAssembly: string,
+  queryId: number,
+  percIdentity: string,
+  querySeq: string,
+) {
+    flashmapResultsWidget.setIsLoading(true)
+
+    const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
+    const fullRefSketch = 'hg38.95pi.w2000.sketch'
+    const mashmapRawHits = await handleMashmapQuerySketch(model, querySeq, fullRefSketch, percIdentity)
+    const mashmapHits = parseMashmapResults(mashmapRawHits)
+    for (const hit of mashmapHits) {
+        const region = {
+            id: flashmapResultsWidget.queryNum,
+            assemblyName: refAssembly,
+            queryName: hit.queryName,
+            queryStart: hit.queryStart,
+            queryEnd: hit.queryEnd,
+            strand: hit.strand,
+            refName: hit.refName,
+            start: hit.refStart,
+            end: hit.refEnd,
+            score: hit.score,
+        }
+        flashmapResultsWidget.addMappedRegion(region)
+    }
+    
+    // only increment id if there were results
+    if (prevMappedRegionsLen < flashmapResultsWidget.mappedRegions.length) {
+      flashmapResultsWidget.setQueryNum(flashmapResultsWidget.queryNum + 1)
+    }
+    flashmapResultsWidget.setIsLoading(false)
+}
+
 async function runMashmapOnBins(
   model: LinearGenomeViewModel, 
   flashmapResultsWidget: any, 
@@ -195,12 +256,9 @@ async function runMashmapOnBins(
     const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
     for (const bin of allFeatures){
         flashmapResultsWidget.setCurrentBin(currentBinNumber)
-        const binCoords = { 
-            leftOffset: bin.bucketStart,
-            rightOffset: bin.bucketEnd,
-        }
-
-        const mashmapRawHits = await handleMashmapQuery(model, querySeq, percIdentity, binCoords)
+        const binSketchName = `bins/${bin.refName}:${bin.bucketStart}-${bin.bucketEnd}.sketch`
+        console.log(binSketchName)
+        const mashmapRawHits = await handleMashmapQuerySketch(model, querySeq, binSketchName, percIdentity)
         const mashmapHits = parseMashmapResults(mashmapRawHits)
         for (const hit of mashmapHits) {
             const region = {
@@ -314,6 +372,7 @@ async function getBigsiRawHits(
     model: any,
     querySequence: string,
     bigsiName: string,
+    subrate: number
 ) : Promise<any> {
     const session = getSession(model)
     const { rpcManager } = session
@@ -324,6 +383,7 @@ async function getBigsiRawHits(
         sessionId,
         querySequence,
         bigsiName,
+        subrate,
     }
 
     const response = await rpcManager.call(
@@ -352,7 +412,7 @@ function SequenceSearchButton({ model }: { model: any }) {
 
   const [trigger, setTrigger] = useState(false);
   const [queryId, setQueryId] = useState(1)
-  const [percIdentity, setPercIdentity] = useState('85')
+  const [percIdentity, setPercIdentity] = useState('95')
   const [sequence, setSequence] = useState('');
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false)
@@ -367,21 +427,51 @@ function SequenceSearchButton({ model }: { model: any }) {
       },
   }
 
+  function estimateMashmapWindowSize (seqLength: number, percIdentity: number) {
+    const baseWindowSize = Math.floor(seqLength/10)  // for 95% match
+    
+    let windowSize = 0
+    if (percIdentity == 95) {
+        windowSize = baseWindowSize
+    } else if (percIdentity > 95 && percIdentity < 99) {
+       windowSize = baseWindowSize * 2 
+    } else {
+        windowSize = baseWindowSize * 4
+    }
+
+    windowSize = windowSize - 1
+    return windowSize
+  }
+
   async function runSearch() {
     let sequenceFound = false
     for (const bigsiName of selectedBigsis) {
         const cleanSeq = cleanSequence(sequence)
-        const rawHits = await getBigsiRawHits(model, cleanSeq, bigsiName)
-        const allFeatures = makeBigsiHitsFeatures(model, rawHits)
-        setLoading(false)
-        if (allFeatures.length) {
+        const windowSizeEstimate = estimateMashmapWindowSize(cleanSeq.length, parseInt(percIdentity))
+        console.log('wse', windowSizeEstimate)
+        const doesBypassBigsi = true ? windowSizeEstimate >= 1999 : false
+        if (doesBypassBigsi) {
             sequenceFound = true
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
             const refAssemblyName = bigsiName
-            runMashmapOnBins(model, flashmapResultsWidget, refAssemblyName, 
-              allFeatures, queryId, percIdentity, sequence
+            runMashmapOnSketch(model, flashmapResultsWidget, refAssemblyName, 
+              queryId, percIdentity, sequence
             )
             setQueryId(() => queryId + 1)
+        } else {
+            const subrate = parseInt(percIdentity)/100
+            const rawHits = await getBigsiRawHits(model, cleanSeq, bigsiName, subrate)
+            const allFeatures = makeBigsiHitsFeatures(model, rawHits)
+            setLoading(false)
+            if (allFeatures.length) {
+                sequenceFound = true
+                const flashmapResultsWidget = activateFlashmapResultsWidget(model)
+                const refAssemblyName = bigsiName
+                runMashmapOnBins(model, flashmapResultsWidget, refAssemblyName, 
+                    allFeatures, queryId, percIdentity, sequence
+                )
+                setQueryId(() => queryId + 1)
+            }
         }
 
     }
@@ -462,9 +552,9 @@ function SequenceSearchButton({ model }: { model: any }) {
                 <br></br>
                 <Slider
                     aria-label="Percent Identity"
-                    min={80}
+                    min={95}
                     max={100}
-                    defaultValue={85}
+                    defaultValue={95}
                     valueLabelDisplay="auto"
                     onChangeCommitted={(event, value) => {
                         if (event) {
@@ -477,7 +567,7 @@ function SequenceSearchButton({ model }: { model: any }) {
                 </>
               <DialogContentText>
                 Upload your query sequence as a FASTA file or paste it below. 
-                Query sequence must be between 500bp to 300Kbp.
+                Query sequence must be between 5kbp to 300kbp.
               </DialogContentText>
               <DialogContentText>
                 Example queries: 

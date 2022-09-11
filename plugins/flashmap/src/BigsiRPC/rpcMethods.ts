@@ -23,6 +23,7 @@ export class BigsiQueryRPC extends RpcMethodType {
       sessionId: string
       querySequence: string
       bigsiName: string
+      subrate: number
     },
     rpcDriverClassName: string,
   ) {
@@ -30,9 +31,9 @@ export class BigsiQueryRPC extends RpcMethodType {
       args,
       rpcDriverClassName,
     )
-    const { sessionId, querySequence, bigsiName } = deserializedArgs
+    const { sessionId, querySequence, bigsiName, subrate } = deserializedArgs
 
-    const results = await main(querySequence, bigsiName)
+    const results = await main(querySequence, bigsiName, subrate)
     return results
   }
 }

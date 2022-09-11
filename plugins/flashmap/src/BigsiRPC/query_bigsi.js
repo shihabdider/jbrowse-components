@@ -18,9 +18,10 @@
 
 import * as fs from 'fs'
 import * as helper from './helper.js'
-import bigsiConfig from './bigsis.config.json'
+import bigsiConfig from './bigsis.config.local.json'
 import * as BitSet from 'bitset'
 import matrix from 'matrix-js'
+import * as quantile from '@stdlib/stats-base-dists-binomial-quantile'
 
 // const cdf = require('binomial-cdf')
 // const matrix = require('matrix-js')
@@ -82,7 +83,8 @@ function getBinaryBigsiSubmatrix(bigsi, rowFilter, numCols){
     console.log('numRows', bigsi.length/24)
     const submatrixRows = []
 
-    const numSeqs = numCols/16
+    const intSize = 16
+    const numSeqs = numCols/intSize
 
     for (const rowNum of rowFilter){
 
@@ -149,47 +151,47 @@ function computeSubmatrixHits(submatrix, bigsiHits, numBuckets){
 // column sum
 const sum = (r, a) => r.map((b, i) => a[i] + b);
 
+function computeLowerBoundContainmentScore(containmentScore, 
+    numMinimizersInQuery, confidenceInterval) {
+    let x = quantile(confidenceInterval, numMinimizersInQuery, containmentScore)
+
+    const lowerBoundContainmentScore = Math.min(x / numMinimizersInQuery, 1)
+    return lowerBoundContainmentScore
+}
+
 // Containment score is the Jaccard containment identity =
 // Hamming weight of submatrix columns divided by
 // number of minimizers inserted into query Bloom Filter
-function computeQueryContainmentScores(submatrix, bigsiHits) {
-    const queryMinimizerCount = submatrix.size()[0]
-    const hammingWeights = submatrix().reduce(sum)
+function computeQueryContainmentScores(submatrix, bigsiHits, subrate) {
+    const kmerLength = 16
+    const numMinimizersInQuery = submatrix.size()[0]
+    const submatrix_T = submatrix.trans()
+    const hammingWeights = []
+    for (const row of submatrix_T) {
+        const bs = new BitSet(row.join(''))
+        const weight = bs.cardinality()
+        hammingWeights.push(weight)
+    }
 
     for (let bucketNum = 0; bucketNum < hammingWeights.length; bucketNum++){
-        const containmentScore = hammingWeights[bucketNum]/queryMinimizerCount
-        if (containmentScore >= 0.8) {
-            bigsiHits[bucketNum] = {'containment': containmentScore}
+        let numMatchingMinimizers = hammingWeights[bucketNum]
+        if (numMatchingMinimizers > 0) {
+            let containmentScore = numMatchingMinimizers/numMinimizersInQuery
+            let containmentBias = 0
+            if (subrate != 0) {
+                containmentScore = Math.max(containmentScore, 0)
+                const pValThreshold = 0.99995
+                containmentScore = computeLowerBoundContainmentScore(containmentScore, numMinimizersInQuery, pValThreshold)
+            }
+            const errorRate = Math.max(-1/kmerLength * Math.log(containmentScore), 0)
+            if (errorRate <= subrate) {
+                const percentMatch = 100*(1 - errorRate)
+                bigsiHits[bucketNum] = {'containment': percentMatch}
+            }
         }
     }
 }
 
-function queryHexBigsi(hexBigsi, queryFragmentsBloomFilters, numCols){
-    const bigsiHits = {}
-
-    const numFragments = queryFragmentsBloomFilters.length
-    console.log('number of query fragments: ', numFragments)
-
-    for (const bloomFilter of queryFragmentsBloomFilters){
-        const queryBFSetBitsIndices = getBloomFilterSetBitsIndices(bloomFilter._filter)
-        
-        const querySubmatrix = getHexBigsiSubmatrix(hexBigsi, queryBFSetBitsIndices)
-
-        if (numFragments == 1){
-            computeQueryContainmentScores(querySubmatrix, bigsiHits)
-        } else {
-            computeSubmatrixHits(querySubmatrix, bigsiHits, numCols)
-        }
-    }
-
-    if (numFragments !== 1){
-        for (const bucketId in bigsiHits) {
-            bigsiHits[bucketId]['score'] = `${bigsiHits[bucketId]['hits']}/${numFragments}`;
-        }
-    }
-
-    return bigsiHits
-}
 
 /** 
  * @param { array of bloom filters } queryFragmentsBloomFilters - an array of Bloom filters with fragment 
@@ -198,7 +200,7 @@ function queryHexBigsi(hexBigsi, queryFragmentsBloomFilters, numCols){
  *
  * @return { object } filteredBigsiHits - object containing fragment hits in the bigsi buckets
  */
-async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols){
+async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols, subrate){
 
     const bigsiHits = {}
 
@@ -211,7 +213,7 @@ async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols)
         const querySubmatrix = await getBinaryBigsiSubmatrix(bigsiArray, queryBFSetBitsIndices, numCols)
 
         if (numFragments === 1){
-            computeQueryContainmentScores(querySubmatrix, bigsiHits)
+            computeQueryContainmentScores(querySubmatrix, bigsiHits, subrate)
         } else {
             computeSubmatrixHits(querySubmatrix, bigsiHits, numCols)
         }
@@ -230,7 +232,7 @@ async function queryBinaryBigsi(bigsiArray, queryFragmentsBloomFilters, numCols)
     return bigsiHits
 }
 
-async function nonFragQuery(querySeq, bigsiName){
+async function nonFragQuery(querySeq, bigsiName, subrate){
     const bigsiPath = bigsiConfig[bigsiName].path
     const queryFragmentsMinimizers = await winnowQueryFragments(querySeq)
     const numCols = bigsiConfig[bigsiName].numCols
@@ -242,17 +244,17 @@ async function nonFragQuery(querySeq, bigsiName){
     
     const querySize = querySeq.length
     const queryMask = await makeFragmentsBloomFilters(queryFragmentsMinimizers, bloomFilterSize)
-    const filteredBigsiHits = await queryBinaryBigsi(bigsiArray, queryMask, numCols)
+    const filteredBigsiHits = await queryBinaryBigsi(bigsiArray, queryMask, numCols, subrate)
 
 
     return filteredBigsiHits
 }
 
-async function main(querySeq, bigsiName) {
+async function main(querySeq, bigsiName, subrate) {
     let filteredBigsiHits 
     const querySize = querySeq.length
-    if (querySize > 5000 && querySize <=300_000) {
-        filteredBigsiHits = await nonFragQuery(querySeq, bigsiName)
+    if (querySize > 5000 && querySize <= 20_000) {
+        filteredBigsiHits = await nonFragQuery(querySeq, bigsiName, subrate)
     } else {
         return console.error('Query must be between 500bp to 300Kbp')
     }
