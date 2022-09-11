@@ -28,6 +28,7 @@
     "useSrc": "node ../../scripts/useSrc.js"
   },
   "dependencies": {
+    "@stdlib/stats-base-dists-binomial-quantile": "^0.0.7",
     "bitset": "^5.1.1",
     "generic-filehandle": "^2.0.0",
     "matrix-js": "^1.6.1",
