@@ -38,57 +38,6 @@ import {
 import { BigsiQueryRPC } from './BigsiRPC/rpcMethods'
 import { MashmapQueryRPC } from './MashmapRPC/rpcMethods'
 
-async function getBucketSequence(
-  model: any,
-  bucketRegion: { leftOffset: number; rightOffset: number },
-) {
-  const session = getSession(model)
-  const { rpcManager, assemblyManager } = session
-  const leftOffset = { offset: bucketRegion.leftOffset, index: 0 }
-  const rightOffset = { offset: bucketRegion.rightOffset, index: 0 }
-  const selectedRegions: Region[] = model.getSelectedRegions(
-    leftOffset,
-    rightOffset,
-  )
-  const sessionId = 'getBucketSequence'
-  const assemblyName = 'hg38'
-  const assemblyConfig = assemblyManager.get(assemblyName)?.configuration
-  const adapterConfig = readConfObject(assemblyConfig, ['sequence', 'adapter'])
-  const chunks = (await Promise.all(
-    selectedRegions.map(region =>
-      rpcManager.call(sessionId, 'CoreGetFeatures', {
-        adapterConfig,
-        region,
-        sessionId,
-      }),
-    ),
-  )) as Feature[][]
-
-  // assumes that we get whole sequence in a single getFeatures call
-  return chunks.map(chunk => chunk[0])
-}
-
-async function runMashmap(
-  model: any,
-  sequences: { ref: string; query: string },
-) {
-  const session = getSession(model)
-  const { rpcManager } = session
-
-  const sessionId = 'mashmapQuery'
-  const { ref, query } = sequences
-
-  const params = {
-    sessionId,
-    ref,
-    query,
-  }
-
-  const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
-
-  return response
-}
-
 export default class extends Plugin {
   name = 'FlashmapPlugin'
 
