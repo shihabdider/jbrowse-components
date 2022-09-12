@@ -1,0 +1,1922 @@
+{
+  "0": {
+    "refName": "NC_000001.11",
+    "bucketStart": 0,
+    "bucketEnd": 15700401
+  },
+  "1": {
+    "refName": "NC_000001.11",
+    "bucketStart": 15550401,
+    "bucketEnd": 31250802
+  },
+  "2": {
+    "refName": "NC_000001.11",
+    "bucketStart": 31100802,
+    "bucketEnd": 46801203
+  },
+  "3": {
+    "refName": "NC_000001.11",
+    "bucketStart": 46651203,
+    "bucketEnd": 62351604
+  },
+  "4": {
+    "refName": "NC_000001.11",
+    "bucketStart": 62201604,
+    "bucketEnd": 77902005
+  },
+  "5": {
+    "refName": "NC_000001.11",
+    "bucketStart": 77752005,
+    "bucketEnd": 93452406
+  },
+  "6": {
+    "refName": "NC_000001.11",
+    "bucketStart": 93302406,
+    "bucketEnd": 109002807
+  },
+  "7": {
+    "refName": "NC_000001.11",
+    "bucketStart": 108852807,
+    "bucketEnd": 124553208
+  },
+  "8": {
+    "refName": "NC_000001.11",
+    "bucketStart": 124403208,
+    "bucketEnd": 140103609
+  },
+  "9": {
+    "refName": "NC_000001.11",
+    "bucketStart": 139953609,
+    "bucketEnd": 155654010
+  },
+  "10": {
+    "refName": "NC_000001.11",
+    "bucketStart": 155504010,
+    "bucketEnd": 171204411
+  },
+  "11": {
+    "refName": "NC_000001.11",
+    "bucketStart": 171054411,
+    "bucketEnd": 186754812
+  },
+  "12": {
+    "refName": "NC_000001.11",
+    "bucketStart": 186604812,
+    "bucketEnd": 202305213
+  },
+  "13": {
+    "refName": "NC_000001.11",
+    "bucketStart": 202155213,
+    "bucketEnd": 217855614
+  },
+  "14": {
+    "refName": "NC_000001.11",
+    "bucketStart": 217705614,
+    "bucketEnd": 233406015
+  },
+  "15": {
+    "refName": "NC_000001.11",
+    "bucketStart": 233256015,
+    "bucketEnd": 248956422
+  },
+  "16": {
+    "refName": "NC_000002.12",
+    "bucketStart": 0,
+    "bucketEnd": 15277721
+  },
+  "17": {
+    "refName": "NC_000002.12",
+    "bucketStart": 15127721,
+    "bucketEnd": 30405442
+  },
+  "18": {
+    "refName": "NC_000002.12",
+    "bucketStart": 30255442,
+    "bucketEnd": 45533163
+  },
+  "19": {
+    "refName": "NC_000002.12",
+    "bucketStart": 45383163,
+    "bucketEnd": 60660884
+  },
+  "20": {
+    "refName": "NC_000002.12",
+    "bucketStart": 60510884,
+    "bucketEnd": 75788605
+  },
+  "21": {
+    "refName": "NC_000002.12",
+    "bucketStart": 75638605,
+    "bucketEnd": 90916326
+  },
+  "22": {
+    "refName": "NC_000002.12",
+    "bucketStart": 90766326,
+    "bucketEnd": 106044047
+  },
+  "23": {
+    "refName": "NC_000002.12",
+    "bucketStart": 105894047,
+    "bucketEnd": 121171768
+  },
+  "24": {
+    "refName": "NC_000002.12",
+    "bucketStart": 121021768,
+    "bucketEnd": 136299489
+  },
+  "25": {
+    "refName": "NC_000002.12",
+    "bucketStart": 136149489,
+    "bucketEnd": 151427210
+  },
+  "26": {
+    "refName": "NC_000002.12",
+    "bucketStart": 151277210,
+    "bucketEnd": 166554931
+  },
+  "27": {
+    "refName": "NC_000002.12",
+    "bucketStart": 166404931,
+    "bucketEnd": 181682652
+  },
+  "28": {
+    "refName": "NC_000002.12",
+    "bucketStart": 181532652,
+    "bucketEnd": 196810373
+  },
+  "29": {
+    "refName": "NC_000002.12",
+    "bucketStart": 196660373,
+    "bucketEnd": 211938094
+  },
+  "30": {
+    "refName": "NC_000002.12",
+    "bucketStart": 211788094,
+    "bucketEnd": 227065815
+  },
+  "31": {
+    "refName": "NC_000002.12",
+    "bucketStart": 226915815,
+    "bucketEnd": 242193536
+  },
+  "32": {
+    "refName": "NC_000003.12",
+    "bucketStart": 0,
+    "bucketEnd": 12534097
+  },
+  "33": {
+    "refName": "NC_000003.12",
+    "bucketStart": 12384097,
+    "bucketEnd": 24918194
+  },
+  "34": {
+    "refName": "NC_000003.12",
+    "bucketStart": 24768194,
+    "bucketEnd": 37302291
+  },
+  "35": {
+    "refName": "NC_000003.12",
+    "bucketStart": 37152291,
+    "bucketEnd": 49686388
+  },
+  "36": {
+    "refName": "NC_000003.12",
+    "bucketStart": 49536388,
+    "bucketEnd": 62070485
+  },
+  "37": {
+    "refName": "NC_000003.12",
+    "bucketStart": 61920485,
+    "bucketEnd": 74454582
+  },
+  "38": {
+    "refName": "NC_000003.12",
+    "bucketStart": 74304582,
+    "bucketEnd": 86838679
+  },
+  "39": {
+    "refName": "NC_000003.12",
+    "bucketStart": 86688679,
+    "bucketEnd": 99222776
+  },
+  "40": {
+    "refName": "NC_000003.12",
+    "bucketStart": 99072776,
+    "bucketEnd": 111606873
+  },
+  "41": {
+    "refName": "NC_000003.12",
+    "bucketStart": 111456873,
+    "bucketEnd": 123990970
+  },
+  "42": {
+    "refName": "NC_000003.12",
+    "bucketStart": 123840970,
+    "bucketEnd": 136375067
+  },
+  "43": {
+    "refName": "NC_000003.12",
+    "bucketStart": 136225067,
+    "bucketEnd": 148759164
+  },
+  "44": {
+    "refName": "NC_000003.12",
+    "bucketStart": 148609164,
+    "bucketEnd": 161143261
+  },
+  "45": {
+    "refName": "NC_000003.12",
+    "bucketStart": 160993261,
+    "bucketEnd": 173527358
+  },
+  "46": {
+    "refName": "NC_000003.12",
+    "bucketStart": 173377358,
+    "bucketEnd": 185911455
+  },
+  "47": {
+    "refName": "NC_000003.12",
+    "bucketStart": 185761455,
+    "bucketEnd": 198295552
+  },
+  "48": {
+    "refName": "NC_000004.12",
+    "bucketStart": 0,
+    "bucketEnd": 12029035
+  },
+  "49": {
+    "refName": "NC_000004.12",
+    "bucketStart": 11879035,
+    "bucketEnd": 23908070
+  },
+  "50": {
+    "refName": "NC_000004.12",
+    "bucketStart": 23758070,
+    "bucketEnd": 35787105
+  },
+  "51": {
+    "refName": "NC_000004.12",
+    "bucketStart": 35637105,
+    "bucketEnd": 47666140
+  },
+  "52": {
+    "refName": "NC_000004.12",
+    "bucketStart": 47516140,
+    "bucketEnd": 59545175
+  },
+  "53": {
+    "refName": "NC_000004.12",
+    "bucketStart": 59395175,
+    "bucketEnd": 71424210
+  },
+  "54": {
+    "refName": "NC_000004.12",
+    "bucketStart": 71274210,
+    "bucketEnd": 83303245
+  },
+  "55": {
+    "refName": "NC_000004.12",
+    "bucketStart": 83153245,
+    "bucketEnd": 95182280
+  },
+  "56": {
+    "refName": "NC_000004.12",
+    "bucketStart": 95032280,
+    "bucketEnd": 107061315
+  },
+  "57": {
+    "refName": "NC_000004.12",
+    "bucketStart": 106911315,
+    "bucketEnd": 118940350
+  },
+  "58": {
+    "refName": "NC_000004.12",
+    "bucketStart": 118790350,
+    "bucketEnd": 130819385
+  },
+  "59": {
+    "refName": "NC_000004.12",
+    "bucketStart": 130669385,
+    "bucketEnd": 142698420
+  },
+  "60": {
+    "refName": "NC_000004.12",
+    "bucketStart": 142548420,
+    "bucketEnd": 154577455
+  },
+  "61": {
+    "refName": "NC_000004.12",
+    "bucketStart": 154427455,
+    "bucketEnd": 166456490
+  },
+  "62": {
+    "refName": "NC_000004.12",
+    "bucketStart": 166306490,
+    "bucketEnd": 178335525
+  },
+  "63": {
+    "refName": "NC_000004.12",
+    "bucketStart": 178185525,
+    "bucketEnd": 190214560
+  },
+  "64": {
+    "refName": "NC_000005.10",
+    "bucketStart": 0,
+    "bucketEnd": 11486766
+  },
+  "65": {
+    "refName": "NC_000005.10",
+    "bucketStart": 11336766,
+    "bucketEnd": 22823532
+  },
+  "66": {
+    "refName": "NC_000005.10",
+    "bucketStart": 22673532,
+    "bucketEnd": 34160298
+  },
+  "67": {
+    "refName": "NC_000005.10",
+    "bucketStart": 34010298,
+    "bucketEnd": 45497064
+  },
+  "68": {
+    "refName": "NC_000005.10",
+    "bucketStart": 45347064,
+    "bucketEnd": 56833830
+  },
+  "69": {
+    "refName": "NC_000005.10",
+    "bucketStart": 56683830,
+    "bucketEnd": 68170596
+  },
+  "70": {
+    "refName": "NC_000005.10",
+    "bucketStart": 68020596,
+    "bucketEnd": 79507362
+  },
+  "71": {
+    "refName": "NC_000005.10",
+    "bucketStart": 79357362,
+    "bucketEnd": 90844128
+  },
+  "72": {
+    "refName": "NC_000005.10",
+    "bucketStart": 90694128,
+    "bucketEnd": 102180894
+  },
+  "73": {
+    "refName": "NC_000005.10",
+    "bucketStart": 102030894,
+    "bucketEnd": 113517660
+  },
+  "74": {
+    "refName": "NC_000005.10",
+    "bucketStart": 113367660,
+    "bucketEnd": 124854426
+  },
+  "75": {
+    "refName": "NC_000005.10",
+    "bucketStart": 124704426,
+    "bucketEnd": 136191192
+  },
+  "76": {
+    "refName": "NC_000005.10",
+    "bucketStart": 136041192,
+    "bucketEnd": 147527958
+  },
+  "77": {
+    "refName": "NC_000005.10",
+    "bucketStart": 147377958,
+    "bucketEnd": 158864724
+  },
+  "78": {
+    "refName": "NC_000005.10",
+    "bucketStart": 158714724,
+    "bucketEnd": 170201490
+  },
+  "79": {
+    "refName": "NC_000005.10",
+    "bucketStart": 170051490,
+    "bucketEnd": 181538256
+  },
+  "80": {
+    "refName": "NC_000006.12",
+    "bucketStart": 0,
+    "bucketEnd": 10815999
+  },
+  "81": {
+    "refName": "NC_000006.12",
+    "bucketStart": 10665999,
+    "bucketEnd": 21481998
+  },
+  "82": {
+    "refName": "NC_000006.12",
+    "bucketStart": 21331998,
+    "bucketEnd": 32147997
+  },
+  "83": {
+    "refName": "NC_000006.12",
+    "bucketStart": 31997997,
+    "bucketEnd": 42813996
+  },
+  "84": {
+    "refName": "NC_000006.12",
+    "bucketStart": 42663996,
+    "bucketEnd": 53479995
+  },
+  "85": {
+    "refName": "NC_000006.12",
+    "bucketStart": 53329995,
+    "bucketEnd": 64145994
+  },
+  "86": {
+    "refName": "NC_000006.12",
+    "bucketStart": 63995994,
+    "bucketEnd": 74811993
+  },
+  "87": {
+    "refName": "NC_000006.12",
+    "bucketStart": 74661993,
+    "bucketEnd": 85477992
+  },
+  "88": {
+    "refName": "NC_000006.12",
+    "bucketStart": 85327992,
+    "bucketEnd": 96143991
+  },
+  "89": {
+    "refName": "NC_000006.12",
+    "bucketStart": 95993991,
+    "bucketEnd": 106809990
+  },
+  "90": {
+    "refName": "NC_000006.12",
+    "bucketStart": 106659990,
+    "bucketEnd": 117475989
+  },
+  "91": {
+    "refName": "NC_000006.12",
+    "bucketStart": 117325989,
+    "bucketEnd": 128141988
+  },
+  "92": {
+    "refName": "NC_000006.12",
+    "bucketStart": 127991988,
+    "bucketEnd": 138807987
+  },
+  "93": {
+    "refName": "NC_000006.12",
+    "bucketStart": 138657987,
+    "bucketEnd": 149473986
+  },
+  "94": {
+    "refName": "NC_000006.12",
+    "bucketStart": 149323986,
+    "bucketEnd": 160139985
+  },
+  "95": {
+    "refName": "NC_000006.12",
+    "bucketStart": 159989985,
+    "bucketEnd": 170805984
+  },
+  "96": {
+    "refName": "NC_000007.14",
+    "bucketStart": 0,
+    "bucketEnd": 10099748
+  },
+  "97": {
+    "refName": "NC_000007.14",
+    "bucketStart": 9949748,
+    "bucketEnd": 20049496
+  },
+  "98": {
+    "refName": "NC_000007.14",
+    "bucketStart": 19899496,
+    "bucketEnd": 29999244
+  },
+  "99": {
+    "refName": "NC_000007.14",
+    "bucketStart": 29849244,
+    "bucketEnd": 39948992
+  },
+  "100": {
+    "refName": "NC_000007.14",
+    "bucketStart": 39798992,
+    "bucketEnd": 49898740
+  },
+  "101": {
+    "refName": "NC_000007.14",
+    "bucketStart": 49748740,
+    "bucketEnd": 59848488
+  },
+  "102": {
+    "refName": "NC_000007.14",
+    "bucketStart": 59698488,
+    "bucketEnd": 69798236
+  },
+  "103": {
+    "refName": "NC_000007.14",
+    "bucketStart": 69648236,
+    "bucketEnd": 79747984
+  },
+  "104": {
+    "refName": "NC_000007.14",
+    "bucketStart": 79597984,
+    "bucketEnd": 89697732
+  },
+  "105": {
+    "refName": "NC_000007.14",
+    "bucketStart": 89547732,
+    "bucketEnd": 99647480
+  },
+  "106": {
+    "refName": "NC_000007.14",
+    "bucketStart": 99497480,
+    "bucketEnd": 109597228
+  },
+  "107": {
+    "refName": "NC_000007.14",
+    "bucketStart": 109447228,
+    "bucketEnd": 119546976
+  },
+  "108": {
+    "refName": "NC_000007.14",
+    "bucketStart": 119396976,
+    "bucketEnd": 129496724
+  },
+  "109": {
+    "refName": "NC_000007.14",
+    "bucketStart": 129346724,
+    "bucketEnd": 139446472
+  },
+  "110": {
+    "refName": "NC_000007.14",
+    "bucketStart": 139296472,
+    "bucketEnd": 149396220
+  },
+  "111": {
+    "refName": "NC_000007.14",
+    "bucketStart": 149246220,
+    "bucketEnd": 159345968
+  },
+  "112": {
+    "refName": "NC_000008.11",
+    "bucketStart": 0,
+    "bucketEnd": 9211790
+  },
+  "113": {
+    "refName": "NC_000008.11",
+    "bucketStart": 9061790,
+    "bucketEnd": 18273580
+  },
+  "114": {
+    "refName": "NC_000008.11",
+    "bucketStart": 18123580,
+    "bucketEnd": 27335370
+  },
+  "115": {
+    "refName": "NC_000008.11",
+    "bucketStart": 27185370,
+    "bucketEnd": 36397160
+  },
+  "116": {
+    "refName": "NC_000008.11",
+    "bucketStart": 36247160,
+    "bucketEnd": 45458950
+  },
+  "117": {
+    "refName": "NC_000008.11",
+    "bucketStart": 45308950,
+    "bucketEnd": 54520740
+  },
+  "118": {
+    "refName": "NC_000008.11",
+    "bucketStart": 54370740,
+    "bucketEnd": 63582530
+  },
+  "119": {
+    "refName": "NC_000008.11",
+    "bucketStart": 63432530,
+    "bucketEnd": 72644320
+  },
+  "120": {
+    "refName": "NC_000008.11",
+    "bucketStart": 72494320,
+    "bucketEnd": 81706110
+  },
+  "121": {
+    "refName": "NC_000008.11",
+    "bucketStart": 81556110,
+    "bucketEnd": 90767900
+  },
+  "122": {
+    "refName": "NC_000008.11",
+    "bucketStart": 90617900,
+    "bucketEnd": 99829690
+  },
+  "123": {
+    "refName": "NC_000008.11",
+    "bucketStart": 99679690,
+    "bucketEnd": 108891480
+  },
+  "124": {
+    "refName": "NC_000008.11",
+    "bucketStart": 108741480,
+    "bucketEnd": 117953270
+  },
+  "125": {
+    "refName": "NC_000008.11",
+    "bucketStart": 117803270,
+    "bucketEnd": 127015060
+  },
+  "126": {
+    "refName": "NC_000008.11",
+    "bucketStart": 126865060,
+    "bucketEnd": 136076850
+  },
+  "127": {
+    "refName": "NC_000008.11",
+    "bucketStart": 135926850,
+    "bucketEnd": 145138640
+  },
+  "128": {
+    "refName": "NC_000009.12",
+    "bucketStart": 0,
+    "bucketEnd": 8790295
+  },
+  "129": {
+    "refName": "NC_000009.12",
+    "bucketStart": 8640295,
+    "bucketEnd": 17430590
+  },
+  "130": {
+    "refName": "NC_000009.12",
+    "bucketStart": 17280590,
+    "bucketEnd": 26070885
+  },
+  "131": {
+    "refName": "NC_000009.12",
+    "bucketStart": 25920885,
+    "bucketEnd": 34711180
+  },
+  "132": {
+    "refName": "NC_000009.12",
+    "bucketStart": 34561180,
+    "bucketEnd": 43351475
+  },
+  "133": {
+    "refName": "NC_000009.12",
+    "bucketStart": 43201475,
+    "bucketEnd": 51991770
+  },
+  "134": {
+    "refName": "NC_000009.12",
+    "bucketStart": 51841770,
+    "bucketEnd": 60632065
+  },
+  "135": {
+    "refName": "NC_000009.12",
+    "bucketStart": 60482065,
+    "bucketEnd": 69272360
+  },
+  "136": {
+    "refName": "NC_000009.12",
+    "bucketStart": 69122360,
+    "bucketEnd": 77912655
+  },
+  "137": {
+    "refName": "NC_000009.12",
+    "bucketStart": 77762655,
+    "bucketEnd": 86552950
+  },
+  "138": {
+    "refName": "NC_000009.12",
+    "bucketStart": 86402950,
+    "bucketEnd": 95193245
+  },
+  "139": {
+    "refName": "NC_000009.12",
+    "bucketStart": 95043245,
+    "bucketEnd": 103833540
+  },
+  "140": {
+    "refName": "NC_000009.12",
+    "bucketStart": 103683540,
+    "bucketEnd": 112473835
+  },
+  "141": {
+    "refName": "NC_000009.12",
+    "bucketStart": 112323835,
+    "bucketEnd": 121114130
+  },
+  "142": {
+    "refName": "NC_000009.12",
+    "bucketStart": 120964130,
+    "bucketEnd": 129754425
+  },
+  "143": {
+    "refName": "NC_000009.12",
+    "bucketStart": 129604425,
+    "bucketEnd": 138394720
+  },
+  "144": {
+    "refName": "NC_000010.11",
+    "bucketStart": 0,
+    "bucketEnd": 8502964
+  },
+  "145": {
+    "refName": "NC_000010.11",
+    "bucketStart": 8352964,
+    "bucketEnd": 16855928
+  },
+  "146": {
+    "refName": "NC_000010.11",
+    "bucketStart": 16705928,
+    "bucketEnd": 25208892
+  },
+  "147": {
+    "refName": "NC_000010.11",
+    "bucketStart": 25058892,
+    "bucketEnd": 33561856
+  },
+  "148": {
+    "refName": "NC_000010.11",
+    "bucketStart": 33411856,
+    "bucketEnd": 41914820
+  },
+  "149": {
+    "refName": "NC_000010.11",
+    "bucketStart": 41764820,
+    "bucketEnd": 50267784
+  },
+  "150": {
+    "refName": "NC_000010.11",
+    "bucketStart": 50117784,
+    "bucketEnd": 58620748
+  },
+  "151": {
+    "refName": "NC_000010.11",
+    "bucketStart": 58470748,
+    "bucketEnd": 66973712
+  },
+  "152": {
+    "refName": "NC_000010.11",
+    "bucketStart": 66823712,
+    "bucketEnd": 75326676
+  },
+  "153": {
+    "refName": "NC_000010.11",
+    "bucketStart": 75176676,
+    "bucketEnd": 83679640
+  },
+  "154": {
+    "refName": "NC_000010.11",
+    "bucketStart": 83529640,
+    "bucketEnd": 92032604
+  },
+  "155": {
+    "refName": "NC_000010.11",
+    "bucketStart": 91882604,
+    "bucketEnd": 100385568
+  },
+  "156": {
+    "refName": "NC_000010.11",
+    "bucketStart": 100235568,
+    "bucketEnd": 108738532
+  },
+  "157": {
+    "refName": "NC_000010.11",
+    "bucketStart": 108588532,
+    "bucketEnd": 117091496
+  },
+  "158": {
+    "refName": "NC_000010.11",
+    "bucketStart": 116941496,
+    "bucketEnd": 125444460
+  },
+  "159": {
+    "refName": "NC_000010.11",
+    "bucketStart": 125294460,
+    "bucketEnd": 133797424
+  },
+  "160": {
+    "refName": "NC_000011.10",
+    "bucketStart": 0,
+    "bucketEnd": 8583539
+  },
+  "161": {
+    "refName": "NC_000011.10",
+    "bucketStart": 8433539,
+    "bucketEnd": 17017078
+  },
+  "162": {
+    "refName": "NC_000011.10",
+    "bucketStart": 16867078,
+    "bucketEnd": 25450617
+  },
+  "163": {
+    "refName": "NC_000011.10",
+    "bucketStart": 25300617,
+    "bucketEnd": 33884156
+  },
+  "164": {
+    "refName": "NC_000011.10",
+    "bucketStart": 33734156,
+    "bucketEnd": 42317695
+  },
+  "165": {
+    "refName": "NC_000011.10",
+    "bucketStart": 42167695,
+    "bucketEnd": 50751234
+  },
+  "166": {
+    "refName": "NC_000011.10",
+    "bucketStart": 50601234,
+    "bucketEnd": 59184773
+  },
+  "167": {
+    "refName": "NC_000011.10",
+    "bucketStart": 59034773,
+    "bucketEnd": 67618312
+  },
+  "168": {
+    "refName": "NC_000011.10",
+    "bucketStart": 67468312,
+    "bucketEnd": 76051851
+  },
+  "169": {
+    "refName": "NC_000011.10",
+    "bucketStart": 75901851,
+    "bucketEnd": 84485390
+  },
+  "170": {
+    "refName": "NC_000011.10",
+    "bucketStart": 84335390,
+    "bucketEnd": 92918929
+  },
+  "171": {
+    "refName": "NC_000011.10",
+    "bucketStart": 92768929,
+    "bucketEnd": 101352468
+  },
+  "172": {
+    "refName": "NC_000011.10",
+    "bucketStart": 101202468,
+    "bucketEnd": 109786007
+  },
+  "173": {
+    "refName": "NC_000011.10",
+    "bucketStart": 109636007,
+    "bucketEnd": 118219546
+  },
+  "174": {
+    "refName": "NC_000011.10",
+    "bucketStart": 118069546,
+    "bucketEnd": 126653085
+  },
+  "175": {
+    "refName": "NC_000011.10",
+    "bucketStart": 126503085,
+    "bucketEnd": 135086624
+  },
+  "176": {
+    "refName": "NC_000012.12",
+    "bucketStart": 0,
+    "bucketEnd": 8470332
+  },
+  "177": {
+    "refName": "NC_000012.12",
+    "bucketStart": 8320332,
+    "bucketEnd": 16790664
+  },
+  "178": {
+    "refName": "NC_000012.12",
+    "bucketStart": 16640664,
+    "bucketEnd": 25110996
+  },
+  "179": {
+    "refName": "NC_000012.12",
+    "bucketStart": 24960996,
+    "bucketEnd": 33431328
+  },
+  "180": {
+    "refName": "NC_000012.12",
+    "bucketStart": 33281328,
+    "bucketEnd": 41751660
+  },
+  "181": {
+    "refName": "NC_000012.12",
+    "bucketStart": 41601660,
+    "bucketEnd": 50071992
+  },
+  "182": {
+    "refName": "NC_000012.12",
+    "bucketStart": 49921992,
+    "bucketEnd": 58392324
+  },
+  "183": {
+    "refName": "NC_000012.12",
+    "bucketStart": 58242324,
+    "bucketEnd": 66712656
+  },
+  "184": {
+    "refName": "NC_000012.12",
+    "bucketStart": 66562656,
+    "bucketEnd": 75032988
+  },
+  "185": {
+    "refName": "NC_000012.12",
+    "bucketStart": 74882988,
+    "bucketEnd": 83353320
+  },
+  "186": {
+    "refName": "NC_000012.12",
+    "bucketStart": 83203320,
+    "bucketEnd": 91673652
+  },
+  "187": {
+    "refName": "NC_000012.12",
+    "bucketStart": 91523652,
+    "bucketEnd": 99993984
+  },
+  "188": {
+    "refName": "NC_000012.12",
+    "bucketStart": 99843984,
+    "bucketEnd": 108314316
+  },
+  "189": {
+    "refName": "NC_000012.12",
+    "bucketStart": 108164316,
+    "bucketEnd": 116634648
+  },
+  "190": {
+    "refName": "NC_000012.12",
+    "bucketStart": 116484648,
+    "bucketEnd": 124954980
+  },
+  "191": {
+    "refName": "NC_000012.12",
+    "bucketStart": 124804980,
+    "bucketEnd": 133275312
+  },
+  "192": {
+    "refName": "NC_000013.11",
+    "bucketStart": 0,
+    "bucketEnd": 7288396
+  },
+  "193": {
+    "refName": "NC_000013.11",
+    "bucketStart": 7138396,
+    "bucketEnd": 14426792
+  },
+  "194": {
+    "refName": "NC_000013.11",
+    "bucketStart": 14276792,
+    "bucketEnd": 21565188
+  },
+  "195": {
+    "refName": "NC_000013.11",
+    "bucketStart": 21415188,
+    "bucketEnd": 28703584
+  },
+  "196": {
+    "refName": "NC_000013.11",
+    "bucketStart": 28553584,
+    "bucketEnd": 35841980
+  },
+  "197": {
+    "refName": "NC_000013.11",
+    "bucketStart": 35691980,
+    "bucketEnd": 42980376
+  },
+  "198": {
+    "refName": "NC_000013.11",
+    "bucketStart": 42830376,
+    "bucketEnd": 50118772
+  },
+  "199": {
+    "refName": "NC_000013.11",
+    "bucketStart": 49968772,
+    "bucketEnd": 57257168
+  },
+  "200": {
+    "refName": "NC_000013.11",
+    "bucketStart": 57107168,
+    "bucketEnd": 64395564
+  },
+  "201": {
+    "refName": "NC_000013.11",
+    "bucketStart": 64245564,
+    "bucketEnd": 71533960
+  },
+  "202": {
+    "refName": "NC_000013.11",
+    "bucketStart": 71383960,
+    "bucketEnd": 78672356
+  },
+  "203": {
+    "refName": "NC_000013.11",
+    "bucketStart": 78522356,
+    "bucketEnd": 85810752
+  },
+  "204": {
+    "refName": "NC_000013.11",
+    "bucketStart": 85660752,
+    "bucketEnd": 92949148
+  },
+  "205": {
+    "refName": "NC_000013.11",
+    "bucketStart": 92799148,
+    "bucketEnd": 100087544
+  },
+  "206": {
+    "refName": "NC_000013.11",
+    "bucketStart": 99937544,
+    "bucketEnd": 107225940
+  },
+  "207": {
+    "refName": "NC_000013.11",
+    "bucketStart": 107075940,
+    "bucketEnd": 114364336
+  },
+  "208": {
+    "refName": "NC_000014.9",
+    "bucketStart": 0,
+    "bucketEnd": 6830857
+  },
+  "209": {
+    "refName": "NC_000014.9",
+    "bucketStart": 6680857,
+    "bucketEnd": 13511714
+  },
+  "210": {
+    "refName": "NC_000014.9",
+    "bucketStart": 13361714,
+    "bucketEnd": 20192571
+  },
+  "211": {
+    "refName": "NC_000014.9",
+    "bucketStart": 20042571,
+    "bucketEnd": 26873428
+  },
+  "212": {
+    "refName": "NC_000014.9",
+    "bucketStart": 26723428,
+    "bucketEnd": 33554285
+  },
+  "213": {
+    "refName": "NC_000014.9",
+    "bucketStart": 33404285,
+    "bucketEnd": 40235142
+  },
+  "214": {
+    "refName": "NC_000014.9",
+    "bucketStart": 40085142,
+    "bucketEnd": 46915999
+  },
+  "215": {
+    "refName": "NC_000014.9",
+    "bucketStart": 46765999,
+    "bucketEnd": 53596856
+  },
+  "216": {
+    "refName": "NC_000014.9",
+    "bucketStart": 53446856,
+    "bucketEnd": 60277713
+  },
+  "217": {
+    "refName": "NC_000014.9",
+    "bucketStart": 60127713,
+    "bucketEnd": 66958570
+  },
+  "218": {
+    "refName": "NC_000014.9",
+    "bucketStart": 66808570,
+    "bucketEnd": 73639427
+  },
+  "219": {
+    "refName": "NC_000014.9",
+    "bucketStart": 73489427,
+    "bucketEnd": 80320284
+  },
+  "220": {
+    "refName": "NC_000014.9",
+    "bucketStart": 80170284,
+    "bucketEnd": 87001141
+  },
+  "221": {
+    "refName": "NC_000014.9",
+    "bucketStart": 86851141,
+    "bucketEnd": 93681998
+  },
+  "222": {
+    "refName": "NC_000014.9",
+    "bucketStart": 93531998,
+    "bucketEnd": 100362855
+  },
+  "223": {
+    "refName": "NC_000014.9",
+    "bucketStart": 100212855,
+    "bucketEnd": 107043712
+  },
+  "224": {
+    "refName": "NC_000015.10",
+    "bucketStart": 0,
+    "bucketEnd": 6515074
+  },
+  "225": {
+    "refName": "NC_000015.10",
+    "bucketStart": 6365074,
+    "bucketEnd": 12880148
+  },
+  "226": {
+    "refName": "NC_000015.10",
+    "bucketStart": 12730148,
+    "bucketEnd": 19245222
+  },
+  "227": {
+    "refName": "NC_000015.10",
+    "bucketStart": 19095222,
+    "bucketEnd": 25610296
+  },
+  "228": {
+    "refName": "NC_000015.10",
+    "bucketStart": 25460296,
+    "bucketEnd": 31975370
+  },
+  "229": {
+    "refName": "NC_000015.10",
+    "bucketStart": 31825370,
+    "bucketEnd": 38340444
+  },
+  "230": {
+    "refName": "NC_000015.10",
+    "bucketStart": 38190444,
+    "bucketEnd": 44705518
+  },
+  "231": {
+    "refName": "NC_000015.10",
+    "bucketStart": 44555518,
+    "bucketEnd": 51070592
+  },
+  "232": {
+    "refName": "NC_000015.10",
+    "bucketStart": 50920592,
+    "bucketEnd": 57435666
+  },
+  "233": {
+    "refName": "NC_000015.10",
+    "bucketStart": 57285666,
+    "bucketEnd": 63800740
+  },
+  "234": {
+    "refName": "NC_000015.10",
+    "bucketStart": 63650740,
+    "bucketEnd": 70165814
+  },
+  "235": {
+    "refName": "NC_000015.10",
+    "bucketStart": 70015814,
+    "bucketEnd": 76530888
+  },
+  "236": {
+    "refName": "NC_000015.10",
+    "bucketStart": 76380888,
+    "bucketEnd": 82895962
+  },
+  "237": {
+    "refName": "NC_000015.10",
+    "bucketStart": 82745962,
+    "bucketEnd": 89261036
+  },
+  "238": {
+    "refName": "NC_000015.10",
+    "bucketStart": 89111036,
+    "bucketEnd": 95626110
+  },
+  "239": {
+    "refName": "NC_000015.10",
+    "bucketStart": 95476110,
+    "bucketEnd": 101991184
+  },
+  "240": {
+    "refName": "NC_000016.10",
+    "bucketStart": 0,
+    "bucketEnd": 5786772
+  },
+  "241": {
+    "refName": "NC_000016.10",
+    "bucketStart": 5636772,
+    "bucketEnd": 11423544
+  },
+  "242": {
+    "refName": "NC_000016.10",
+    "bucketStart": 11273544,
+    "bucketEnd": 17060316
+  },
+  "243": {
+    "refName": "NC_000016.10",
+    "bucketStart": 16910316,
+    "bucketEnd": 22697088
+  },
+  "244": {
+    "refName": "NC_000016.10",
+    "bucketStart": 22547088,
+    "bucketEnd": 28333860
+  },
+  "245": {
+    "refName": "NC_000016.10",
+    "bucketStart": 28183860,
+    "bucketEnd": 33970632
+  },
+  "246": {
+    "refName": "NC_000016.10",
+    "bucketStart": 33820632,
+    "bucketEnd": 39607404
+  },
+  "247": {
+    "refName": "NC_000016.10",
+    "bucketStart": 39457404,
+    "bucketEnd": 45244176
+  },
+  "248": {
+    "refName": "NC_000016.10",
+    "bucketStart": 45094176,
+    "bucketEnd": 50880948
+  },
+  "249": {
+    "refName": "NC_000016.10",
+    "bucketStart": 50730948,
+    "bucketEnd": 56517720
+  },
+  "250": {
+    "refName": "NC_000016.10",
+    "bucketStart": 56367720,
+    "bucketEnd": 62154492
+  },
+  "251": {
+    "refName": "NC_000016.10",
+    "bucketStart": 62004492,
+    "bucketEnd": 67791264
+  },
+  "252": {
+    "refName": "NC_000016.10",
+    "bucketStart": 67641264,
+    "bucketEnd": 73428036
+  },
+  "253": {
+    "refName": "NC_000016.10",
+    "bucketStart": 73278036,
+    "bucketEnd": 79064808
+  },
+  "254": {
+    "refName": "NC_000016.10",
+    "bucketStart": 78914808,
+    "bucketEnd": 84701580
+  },
+  "255": {
+    "refName": "NC_000016.10",
+    "bucketStart": 84551580,
+    "bucketEnd": 90338352
+  },
+  "256": {
+    "refName": "NC_000017.11",
+    "bucketStart": 0,
+    "bucketEnd": 5344215
+  },
+  "257": {
+    "refName": "NC_000017.11",
+    "bucketStart": 5194215,
+    "bucketEnd": 10538430
+  },
+  "258": {
+    "refName": "NC_000017.11",
+    "bucketStart": 10388430,
+    "bucketEnd": 15732645
+  },
+  "259": {
+    "refName": "NC_000017.11",
+    "bucketStart": 15582645,
+    "bucketEnd": 20926860
+  },
+  "260": {
+    "refName": "NC_000017.11",
+    "bucketStart": 20776860,
+    "bucketEnd": 26121075
+  },
+  "261": {
+    "refName": "NC_000017.11",
+    "bucketStart": 25971075,
+    "bucketEnd": 31315290
+  },
+  "262": {
+    "refName": "NC_000017.11",
+    "bucketStart": 31165290,
+    "bucketEnd": 36509505
+  },
+  "263": {
+    "refName": "NC_000017.11",
+    "bucketStart": 36359505,
+    "bucketEnd": 41703720
+  },
+  "264": {
+    "refName": "NC_000017.11",
+    "bucketStart": 41553720,
+    "bucketEnd": 46897935
+  },
+  "265": {
+    "refName": "NC_000017.11",
+    "bucketStart": 46747935,
+    "bucketEnd": 52092150
+  },
+  "266": {
+    "refName": "NC_000017.11",
+    "bucketStart": 51942150,
+    "bucketEnd": 57286365
+  },
+  "267": {
+    "refName": "NC_000017.11",
+    "bucketStart": 57136365,
+    "bucketEnd": 62480580
+  },
+  "268": {
+    "refName": "NC_000017.11",
+    "bucketStart": 62330580,
+    "bucketEnd": 67674795
+  },
+  "269": {
+    "refName": "NC_000017.11",
+    "bucketStart": 67524795,
+    "bucketEnd": 72869010
+  },
+  "270": {
+    "refName": "NC_000017.11",
+    "bucketStart": 72719010,
+    "bucketEnd": 78063225
+  },
+  "271": {
+    "refName": "NC_000017.11",
+    "bucketStart": 77913225,
+    "bucketEnd": 83257440
+  },
+  "272": {
+    "refName": "NC_000018.10",
+    "bucketStart": 0,
+    "bucketEnd": 5163955
+  },
+  "273": {
+    "refName": "NC_000018.10",
+    "bucketStart": 5013955,
+    "bucketEnd": 10177910
+  },
+  "274": {
+    "refName": "NC_000018.10",
+    "bucketStart": 10027910,
+    "bucketEnd": 15191865
+  },
+  "275": {
+    "refName": "NC_000018.10",
+    "bucketStart": 15041865,
+    "bucketEnd": 20205820
+  },
+  "276": {
+    "refName": "NC_000018.10",
+    "bucketStart": 20055820,
+    "bucketEnd": 25219775
+  },
+  "277": {
+    "refName": "NC_000018.10",
+    "bucketStart": 25069775,
+    "bucketEnd": 30233730
+  },
+  "278": {
+    "refName": "NC_000018.10",
+    "bucketStart": 30083730,
+    "bucketEnd": 35247685
+  },
+  "279": {
+    "refName": "NC_000018.10",
+    "bucketStart": 35097685,
+    "bucketEnd": 40261640
+  },
+  "280": {
+    "refName": "NC_000018.10",
+    "bucketStart": 40111640,
+    "bucketEnd": 45275595
+  },
+  "281": {
+    "refName": "NC_000018.10",
+    "bucketStart": 45125595,
+    "bucketEnd": 50289550
+  },
+  "282": {
+    "refName": "NC_000018.10",
+    "bucketStart": 50139550,
+    "bucketEnd": 55303505
+  },
+  "283": {
+    "refName": "NC_000018.10",
+    "bucketStart": 55153505,
+    "bucketEnd": 60317460
+  },
+  "284": {
+    "refName": "NC_000018.10",
+    "bucketStart": 60167460,
+    "bucketEnd": 65331415
+  },
+  "285": {
+    "refName": "NC_000018.10",
+    "bucketStart": 65181415,
+    "bucketEnd": 70345370
+  },
+  "286": {
+    "refName": "NC_000018.10",
+    "bucketStart": 70195370,
+    "bucketEnd": 75359325
+  },
+  "287": {
+    "refName": "NC_000018.10",
+    "bucketStart": 75209325,
+    "bucketEnd": 80373280
+  },
+  "288": {
+    "refName": "NC_000019.10",
+    "bucketStart": 0,
+    "bucketEnd": 3804226
+  },
+  "289": {
+    "refName": "NC_000019.10",
+    "bucketStart": 3654226,
+    "bucketEnd": 7458452
+  },
+  "290": {
+    "refName": "NC_000019.10",
+    "bucketStart": 7308452,
+    "bucketEnd": 11112678
+  },
+  "291": {
+    "refName": "NC_000019.10",
+    "bucketStart": 10962678,
+    "bucketEnd": 14766904
+  },
+  "292": {
+    "refName": "NC_000019.10",
+    "bucketStart": 14616904,
+    "bucketEnd": 18421130
+  },
+  "293": {
+    "refName": "NC_000019.10",
+    "bucketStart": 18271130,
+    "bucketEnd": 22075356
+  },
+  "294": {
+    "refName": "NC_000019.10",
+    "bucketStart": 21925356,
+    "bucketEnd": 25729582
+  },
+  "295": {
+    "refName": "NC_000019.10",
+    "bucketStart": 25579582,
+    "bucketEnd": 29383808
+  },
+  "296": {
+    "refName": "NC_000019.10",
+    "bucketStart": 29233808,
+    "bucketEnd": 33038034
+  },
+  "297": {
+    "refName": "NC_000019.10",
+    "bucketStart": 32888034,
+    "bucketEnd": 36692260
+  },
+  "298": {
+    "refName": "NC_000019.10",
+    "bucketStart": 36542260,
+    "bucketEnd": 40346486
+  },
+  "299": {
+    "refName": "NC_000019.10",
+    "bucketStart": 40196486,
+    "bucketEnd": 44000712
+  },
+  "300": {
+    "refName": "NC_000019.10",
+    "bucketStart": 43850712,
+    "bucketEnd": 47654938
+  },
+  "301": {
+    "refName": "NC_000019.10",
+    "bucketStart": 47504938,
+    "bucketEnd": 51309164
+  },
+  "302": {
+    "refName": "NC_000019.10",
+    "bucketStart": 51159164,
+    "bucketEnd": 54963390
+  },
+  "303": {
+    "refName": "NC_000019.10",
+    "bucketStart": 54813390,
+    "bucketEnd": 58617616
+  },
+  "304": {
+    "refName": "NC_000020.11",
+    "bucketStart": 0,
+    "bucketEnd": 4168385
+  },
+  "305": {
+    "refName": "NC_000020.11",
+    "bucketStart": 4018385,
+    "bucketEnd": 8186770
+  },
+  "306": {
+    "refName": "NC_000020.11",
+    "bucketStart": 8036770,
+    "bucketEnd": 12205155
+  },
+  "307": {
+    "refName": "NC_000020.11",
+    "bucketStart": 12055155,
+    "bucketEnd": 16223540
+  },
+  "308": {
+    "refName": "NC_000020.11",
+    "bucketStart": 16073540,
+    "bucketEnd": 20241925
+  },
+  "309": {
+    "refName": "NC_000020.11",
+    "bucketStart": 20091925,
+    "bucketEnd": 24260310
+  },
+  "310": {
+    "refName": "NC_000020.11",
+    "bucketStart": 24110310,
+    "bucketEnd": 28278695
+  },
+  "311": {
+    "refName": "NC_000020.11",
+    "bucketStart": 28128695,
+    "bucketEnd": 32297080
+  },
+  "312": {
+    "refName": "NC_000020.11",
+    "bucketStart": 32147080,
+    "bucketEnd": 36315465
+  },
+  "313": {
+    "refName": "NC_000020.11",
+    "bucketStart": 36165465,
+    "bucketEnd": 40333850
+  },
+  "314": {
+    "refName": "NC_000020.11",
+    "bucketStart": 40183850,
+    "bucketEnd": 44352235
+  },
+  "315": {
+    "refName": "NC_000020.11",
+    "bucketStart": 44202235,
+    "bucketEnd": 48370620
+  },
+  "316": {
+    "refName": "NC_000020.11",
+    "bucketStart": 48220620,
+    "bucketEnd": 52389005
+  },
+  "317": {
+    "refName": "NC_000020.11",
+    "bucketStart": 52239005,
+    "bucketEnd": 56407390
+  },
+  "318": {
+    "refName": "NC_000020.11",
+    "bucketStart": 56257390,
+    "bucketEnd": 60425775
+  },
+  "319": {
+    "refName": "NC_000020.11",
+    "bucketStart": 60275775,
+    "bucketEnd": 64444160
+  },
+  "320": {
+    "refName": "NC_000021.9",
+    "bucketStart": 0,
+    "bucketEnd": 3059999
+  },
+  "321": {
+    "refName": "NC_000021.9",
+    "bucketStart": 2909999,
+    "bucketEnd": 5969998
+  },
+  "322": {
+    "refName": "NC_000021.9",
+    "bucketStart": 5819998,
+    "bucketEnd": 8879997
+  },
+  "323": {
+    "refName": "NC_000021.9",
+    "bucketStart": 8729997,
+    "bucketEnd": 11789996
+  },
+  "324": {
+    "refName": "NC_000021.9",
+    "bucketStart": 11639996,
+    "bucketEnd": 14699995
+  },
+  "325": {
+    "refName": "NC_000021.9",
+    "bucketStart": 14549995,
+    "bucketEnd": 17609994
+  },
+  "326": {
+    "refName": "NC_000021.9",
+    "bucketStart": 17459994,
+    "bucketEnd": 20519993
+  },
+  "327": {
+    "refName": "NC_000021.9",
+    "bucketStart": 20369993,
+    "bucketEnd": 23429992
+  },
+  "328": {
+    "refName": "NC_000021.9",
+    "bucketStart": 23279992,
+    "bucketEnd": 26339991
+  },
+  "329": {
+    "refName": "NC_000021.9",
+    "bucketStart": 26189991,
+    "bucketEnd": 29249990
+  },
+  "330": {
+    "refName": "NC_000021.9",
+    "bucketStart": 29099990,
+    "bucketEnd": 32159989
+  },
+  "331": {
+    "refName": "NC_000021.9",
+    "bucketStart": 32009989,
+    "bucketEnd": 35069988
+  },
+  "332": {
+    "refName": "NC_000021.9",
+    "bucketStart": 34919988,
+    "bucketEnd": 37979987
+  },
+  "333": {
+    "refName": "NC_000021.9",
+    "bucketStart": 37829987,
+    "bucketEnd": 40889986
+  },
+  "334": {
+    "refName": "NC_000021.9",
+    "bucketStart": 40739986,
+    "bucketEnd": 43799985
+  },
+  "335": {
+    "refName": "NC_000021.9",
+    "bucketStart": 43649985,
+    "bucketEnd": 46709984
+  },
+  "336": {
+    "refName": "NC_000022.11",
+    "bucketStart": 0,
+    "bucketEnd": 3316779
+  },
+  "337": {
+    "refName": "NC_000022.11",
+    "bucketStart": 3166779,
+    "bucketEnd": 6483558
+  },
+  "338": {
+    "refName": "NC_000022.11",
+    "bucketStart": 6333558,
+    "bucketEnd": 9650337
+  },
+  "339": {
+    "refName": "NC_000022.11",
+    "bucketStart": 9500337,
+    "bucketEnd": 12817116
+  },
+  "340": {
+    "refName": "NC_000022.11",
+    "bucketStart": 12667116,
+    "bucketEnd": 15983895
+  },
+  "341": {
+    "refName": "NC_000022.11",
+    "bucketStart": 15833895,
+    "bucketEnd": 19150674
+  },
+  "342": {
+    "refName": "NC_000022.11",
+    "bucketStart": 19000674,
+    "bucketEnd": 22317453
+  },
+  "343": {
+    "refName": "NC_000022.11",
+    "bucketStart": 22167453,
+    "bucketEnd": 25484232
+  },
+  "344": {
+    "refName": "NC_000022.11",
+    "bucketStart": 25334232,
+    "bucketEnd": 28651011
+  },
+  "345": {
+    "refName": "NC_000022.11",
+    "bucketStart": 28501011,
+    "bucketEnd": 31817790
+  },
+  "346": {
+    "refName": "NC_000022.11",
+    "bucketStart": 31667790,
+    "bucketEnd": 34984569
+  },
+  "347": {
+    "refName": "NC_000022.11",
+    "bucketStart": 34834569,
+    "bucketEnd": 38151348
+  },
+  "348": {
+    "refName": "NC_000022.11",
+    "bucketStart": 38001348,
+    "bucketEnd": 41318127
+  },
+  "349": {
+    "refName": "NC_000022.11",
+    "bucketStart": 41168127,
+    "bucketEnd": 44484906
+  },
+  "350": {
+    "refName": "NC_000022.11",
+    "bucketStart": 44334906,
+    "bucketEnd": 47651685
+  },
+  "351": {
+    "refName": "NC_000022.11",
+    "bucketStart": 47501685,
+    "bucketEnd": 50818464
+  },
+  "352": {
+    "refName": "NC_000023.11",
+    "bucketStart": 0,
+    "bucketEnd": 9893181
+  },
+  "353": {
+    "refName": "NC_000023.11",
+    "bucketStart": 9743181,
+    "bucketEnd": 19636362
+  },
+  "354": {
+    "refName": "NC_000023.11",
+    "bucketStart": 19486362,
+    "bucketEnd": 29379543
+  },
+  "355": {
+    "refName": "NC_000023.11",
+    "bucketStart": 29229543,
+    "bucketEnd": 39122724
+  },
+  "356": {
+    "refName": "NC_000023.11",
+    "bucketStart": 38972724,
+    "bucketEnd": 48865905
+  },
+  "357": {
+    "refName": "NC_000023.11",
+    "bucketStart": 48715905,
+    "bucketEnd": 58609086
+  },
+  "358": {
+    "refName": "NC_000023.11",
+    "bucketStart": 58459086,
+    "bucketEnd": 68352267
+  },
+  "359": {
+    "refName": "NC_000023.11",
+    "bucketStart": 68202267,
+    "bucketEnd": 78095448
+  },
+  "360": {
+    "refName": "NC_000023.11",
+    "bucketStart": 77945448,
+    "bucketEnd": 87838629
+  },
+  "361": {
+    "refName": "NC_000023.11",
+    "bucketStart": 87688629,
+    "bucketEnd": 97581810
+  },
+  "362": {
+    "refName": "NC_000023.11",
+    "bucketStart": 97431810,
+    "bucketEnd": 107324991
+  },
+  "363": {
+    "refName": "NC_000023.11",
+    "bucketStart": 107174991,
+    "bucketEnd": 117068172
+  },
+  "364": {
+    "refName": "NC_000023.11",
+    "bucketStart": 116918172,
+    "bucketEnd": 126811353
+  },
+  "365": {
+    "refName": "NC_000023.11",
+    "bucketStart": 126661353,
+    "bucketEnd": 136554534
+  },
+  "366": {
+    "refName": "NC_000023.11",
+    "bucketStart": 136404534,
+    "bucketEnd": 146297715
+  },
+  "367": {
+    "refName": "NC_000023.11",
+    "bucketStart": 146147715,
+    "bucketEnd": 156040896
+  },
+  "368": {
+    "refName": "NC_000024.10",
+    "bucketStart": 0,
+    "bucketEnd": 3717338
+  },
+  "369": {
+    "refName": "NC_000024.10",
+    "bucketStart": 3567338,
+    "bucketEnd": 7284676
+  },
+  "370": {
+    "refName": "NC_000024.10",
+    "bucketStart": 7134676,
+    "bucketEnd": 10852014
+  },
+  "371": {
+    "refName": "NC_000024.10",
+    "bucketStart": 10702014,
+    "bucketEnd": 14419352
+  },
+  "372": {
+    "refName": "NC_000024.10",
+    "bucketStart": 14269352,
+    "bucketEnd": 17986690
+  },
+  "373": {
+    "refName": "NC_000024.10",
+    "bucketStart": 17836690,
+    "bucketEnd": 21554028
+  },
+  "374": {
+    "refName": "NC_000024.10",
+    "bucketStart": 21404028,
+    "bucketEnd": 25121366
+  },
+  "375": {
+    "refName": "NC_000024.10",
+    "bucketStart": 24971366,
+    "bucketEnd": 28688704
+  },
+  "376": {
+    "refName": "NC_000024.10",
+    "bucketStart": 28538704,
+    "bucketEnd": 32256042
+  },
+  "377": {
+    "refName": "NC_000024.10",
+    "bucketStart": 32106042,
+    "bucketEnd": 35823380
+  },
+  "378": {
+    "refName": "NC_000024.10",
+    "bucketStart": 35673380,
+    "bucketEnd": 39390718
+  },
+  "379": {
+    "refName": "NC_000024.10",
+    "bucketStart": 39240718,
+    "bucketEnd": 42958056
+  },
+  "380": {
+    "refName": "NC_000024.10",
+    "bucketStart": 42808056,
+    "bucketEnd": 46525394
+  },
+  "381": {
+    "refName": "NC_000024.10",
+    "bucketStart": 46375394,
+    "bucketEnd": 50092732
+  },
+  "382": {
+    "refName": "NC_000024.10",
+    "bucketStart": 49942732,
+    "bucketEnd": 53660070
+  },
+  "383": {
+    "refName": "NC_000024.10",
+    "bucketStart": 53510070,
+    "bucketEnd": 57227408
+  }
+}
