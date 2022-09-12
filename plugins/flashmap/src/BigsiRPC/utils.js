@@ -1,5 +1,5 @@
 const murmur = require('murmurhash-js')
-const { BloomFilter, getDistinctIndices } = require('bloom-filters')
+const { BloomFilter } = require('bloom-filters')
 const { IndexedFasta } = require('@gmod/indexedfasta')
 const cdf = require('binomial-cdf');
 
@@ -25,7 +25,7 @@ async function loadFasta(fastaPath, faiPath){
     const seq = new IndexedFasta({
         path: fastaPath,
         faiPath: faiPath,
-        chunkSizeLimit: 5e8
+        chunkSizeLimit: 5e7
     });
 
     return seq
@@ -53,7 +53,7 @@ async function getFilteredGenomeSeqs(genome, seqSizeThreshold=10**7){
 }
 
 // Based on MashMap's winnowing algorithm
-function extractMinimizers(seq, windowSize){
+function extractMinimizers(seq, windowSize=100){
     seq = seq.toUpperCase()
 
     const kmerSize = 16
@@ -105,11 +105,6 @@ function computeFalseHitProb(falsePosRate, minQueryMinimizers, containmentScoreT
     return falseHitProb
 }
 
-function computeNumMinimizers(seqLength, windowSize=100){
-    const numMinimizers = Math.ceil(seqLength/windowSize * 2)
-    return numMinimizers
-}
-
 function computeBloomFilterSize(maxNumElementsInserted, containmentScoreThresh, totalNumBuckets){
     // initialize set parameters
     const minQueryMinimizers = 100  // 5Kbp min query = 100 minimizers
@@ -133,17 +128,6 @@ function computeBloomFilterSize(maxNumElementsInserted, containmentScoreThresh, 
     }
 }
 
-function makeQueryRowFilters(minimizers, bloomFilterSize, numHashes) {
-    const queryRowFilters = []
-//    const seed = 78187493520
-    for (const minimizer of minimizers){
-        const indexes = getDistinctIndices(minimizer.toString(), bloomFilterSize, numHashes)
-        queryRowFilters.push(indexes)
-    }
-    console.log(queryRowFilters)
-    return queryRowFilters
-}
-
 function makeMinimizersBloomFilter(minimizers, bloomFilterSize) {
     // adjust filter size based on number of inserted elements and desired false pos 
     // rate
@@ -152,36 +136,32 @@ function makeMinimizersBloomFilter(minimizers, bloomFilterSize) {
     for (const minimizer of minimizers){
         minimizersBloomFilter.add(minimizer.toString())
     }
-
     const minimizersBloomFilterArray = minimizersBloomFilter._filter
 
     return minimizersBloomFilterArray
 }
 
-function writeToJSON(object, filename){
-    const json = JSON.stringify(object, null, 4);
-
-    fs.writeFile(filename, json, function(err){
-        if(err) {
-            console.log(err)
-        } else {
-            console.log(`File written to: ${filename}`);
-        }
-    });
+export {
+     zeroPadBitstring,
+     reverseComplement,
+     loadFasta,
+     getFilteredGenomeSeqs,
+     extractMinimizers,
+     computeBloomFilterFalsePosRate,
+     computeFalseHitProb,
+     computeBloomFilterSize,
+     makeMinimizersBloomFilter,
 }
 
-module.exports = {
-    zeroPadBitstring: zeroPadBitstring,
-    reverseComplement: reverseComplement,
-    loadFasta: loadFasta,
-    getFilteredGenomeSeqs: getFilteredGenomeSeqs,
-    extractMinimizers: extractMinimizers,
-    computeBloomFilterFalsePosRate: computeBloomFilterFalsePosRate,
-    computeFalseHitProb: computeFalseHitProb,
-    computeNumMinimizers: computeNumMinimizers,
-    computeBloomFilterSize: computeBloomFilterSize,
-    makeMinimizersBloomFilter: makeMinimizersBloomFilter,
-    makeQueryRowFilters: makeQueryRowFilters,
-    writeToJSON: writeToJSON,
-}
+//module.exports = {
+//    zeroPadBitstring: zeroPadBitstring,
+//    reverseComplement: reverseComplement,
+//    loadFasta: loadFasta,
+//    getFilteredGenomeSeqs: getFilteredGenomeSeqs,
+//    extractMinimizers: extractMinimizers,
+//    computeBloomFilterFalsePosRate: computeBloomFilterFalsePosRate,
+//    computeFalseHitProb: computeFalseHitProb,
+//    computeBloomFilterSize: computeBloomFilterSize,
+//    makeMinimizersBloomFilter: makeMinimizersBloomFilter,
+//}
 

@@ -184,7 +184,6 @@ async function runMashmapOnBins(
 
     let currentBinNumber = 1
     const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
-    console.log(allFeatures)
     for (const bin of allFeatures){
         flashmapResultsWidget.setCurrentBin(currentBinNumber)
         const binSketchName = `bins/${bin.refName}:${bin.bucketStart}-${bin.bucketEnd}.sketch`
@@ -378,8 +377,7 @@ function SequenceSearchButton({ model }: { model: any }) {
     for (const bigsiName of selectedBigsis) {
         const cleanSeq = cleanSequence(sequence)
         const windowSizeEstimate = estimateMashmapWindowSize(cleanSeq.length, parseInt(percIdentity))
-        console.log('wse', windowSizeEstimate)
-        const doesBypassBigsi = true ? windowSizeEstimate >= 19999 : false
+        const doesBypassBigsi = true ? windowSizeEstimate >= 1999 : false
         if (doesBypassBigsi) {
             sequenceFound = true
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
@@ -389,7 +387,7 @@ function SequenceSearchButton({ model }: { model: any }) {
             )
             setQueryId(() => queryId + 1)
         } else {
-            const subrate = parseInt(percIdentity)/100
+            const subrate = 1 - parseInt(percIdentity)/100
             const rawHits = await getBigsiRawHits(model, cleanSeq, bigsiName, subrate)
             const allFeatures = makeBigsiHitsFeatures(model, rawHits)
             setLoading(false)
@@ -579,7 +577,6 @@ function SequenceSearchButton({ model }: { model: any }) {
                         setLoading(true)
                         const sequenceFound = await runSearch() 
                         if (!loading && sequenceFound) {
-                          console.log('Loading and sequence found', loading, sequenceFound)
                           handleClose()
                         } else {
                           setError(new Error('Sequence not found!'))
