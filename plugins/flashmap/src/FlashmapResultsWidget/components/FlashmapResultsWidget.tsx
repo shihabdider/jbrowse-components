@@ -124,6 +124,30 @@ const FlashmapResultsGrid = observer(
         ),
       },
       {
+        field: 'locString',
+        headerName: 'Mapped To',
+        width: Math.max(...flashmapResultsRows.map(row => measure(row, 'locString'))),
+        renderCell: (params: GridCellParams) => {
+          const { value } = params
+          return (
+            <Link
+              className={classes.link}
+              onClick={() => navToMappedRegion(value as string, views, model)}
+            >
+              {value}
+            </Link>
+          )
+        },
+      },
+      {
+        field: 'score',
+        headerName: 'Score',
+        width: Math.max(
+          100,
+          Math.max(...flashmapResultsRows.map(row => measure(row, 'score'))),
+        ),
+      },
+      {
         field: 'queryName',
         headerName: 'Query',
         width: Math.max(
@@ -155,30 +179,6 @@ const FlashmapResultsGrid = observer(
           Math.max(...flashmapResultsRows.map(row => measure(row, 'strand'))),
         ),
       },
-      {
-        field: 'locString',
-        headerName: 'Mapped To',
-        width: Math.max(...flashmapResultsRows.map(row => measure(row, 'locString'))),
-        renderCell: (params: GridCellParams) => {
-          const { value } = params
-          return (
-            <Link
-              className={classes.link}
-              onClick={() => navToMappedRegion(value as string, views, model)}
-            >
-              {value}
-            </Link>
-          )
-        },
-      },
-      {
-        field: 'score',
-        headerName: 'Score',
-        width: Math.max(
-          100,
-          Math.max(...flashmapResultsRows.map(row => measure(row, 'score'))),
-        ),
-      },
     ]
 
     return (
@@ -204,9 +204,24 @@ function FlashmapResultsWidget({ model }: { model: FlashmapResultsModel }) {
         <Typography>
           Click on a "Mapped To" entry to jump that region in the reference.
         </Typography>
-        { isLoading ? (
+
+        { isLoading && currentBin > 0 ? (
           <Typography>
             Executing refined search on bin {currentBin} of {numBinsHit}
+
+            <CircularProgress
+              style={{
+                  marginLeft: 10,
+              }}
+              size={20}
+              disableShrink
+            />
+          </Typography> 
+          ) : null}
+
+        { isLoading && currentBin < 0 ? (
+          <Typography>
+            Executing refined search on sketch of whole genome
 
             <CircularProgress
               style={{

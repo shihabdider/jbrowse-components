@@ -108,23 +108,6 @@ async function handleMashmapQuerySketch(
   return response as string
 }
 
-async function handleMashmapQuery(
-  model: LinearGenomeViewModel,
-  querySequence: string, 
-  percIdentity: string,
-  bucketCoords: { leftOffset: number, rightOffset: number }
-  ) : Promise<string> {
-
-    const refSeq = await getBucketSequence(model, bucketCoords)
-    // pass ref and query to mashmap rpc
-    const sequences = {
-        ref: refSeq[0].get('seq'),
-        query: querySequence
-    }
-    const mashmapHits = await getMashmapRawHits(model, sequences, percIdentity)
-    return mashmapHits
-}
-
 function parseMashmapResults(rawHits: string) {
   const entries = rawHits.split('\n')
   const results = []
@@ -158,6 +141,7 @@ async function runMashmapOnSketch(
   querySeq: string,
 ) {
     flashmapResultsWidget.setIsLoading(true)
+    flashmapResultsWidget.setCurrentBin(-1) // set to -1 for whole genome sketch search
 
     const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
     const fullRefSketch = 'hg38.95pi.w2000.sketch'
@@ -200,10 +184,10 @@ async function runMashmapOnBins(
 
     let currentBinNumber = 1
     const prevMappedRegionsLen = flashmapResultsWidget.mappedRegions.length
+    console.log(allFeatures)
     for (const bin of allFeatures){
         flashmapResultsWidget.setCurrentBin(currentBinNumber)
         const binSketchName = `bins/${bin.refName}:${bin.bucketStart}-${bin.bucketEnd}.sketch`
-        console.log(binSketchName)
         const mashmapRawHits = await handleMashmapQuerySketch(model, querySeq, binSketchName, percIdentity)
         const mashmapHits = parseMashmapResults(mashmapRawHits)
         for (const hit of mashmapHits) {
@@ -395,7 +379,7 @@ function SequenceSearchButton({ model }: { model: any }) {
         const cleanSeq = cleanSequence(sequence)
         const windowSizeEstimate = estimateMashmapWindowSize(cleanSeq.length, parseInt(percIdentity))
         console.log('wse', windowSizeEstimate)
-        const doesBypassBigsi = true ? windowSizeEstimate >= 1999 : false
+        const doesBypassBigsi = true ? windowSizeEstimate >= 19999 : false
         if (doesBypassBigsi) {
             sequenceFound = true
             const flashmapResultsWidget = activateFlashmapResultsWidget(model)
@@ -467,7 +451,7 @@ function SequenceSearchButton({ model }: { model: any }) {
       <Dialog 
         maxWidth="xl"
         open={trigger} 
-        onClose={() => setTrigger(false)}>
+        onClose={() => {setTrigger(false); setPercIdentity('95')}}>
 
           <DialogTitle>
             Approximate Sequence Search

@@ -253,10 +253,10 @@ async function nonFragQuery(querySeq, bigsiName, subrate){
 async function main(querySeq, bigsiName, subrate) {
     let filteredBigsiHits 
     const querySize = querySeq.length
-    if (querySize > 5000 && querySize <= 20_000) {
+    if (querySize > 5000 && querySize <= 300_000) {
         filteredBigsiHits = await nonFragQuery(querySeq, bigsiName, subrate)
     } else {
-        return console.error('Query must be between 500bp to 300Kbp')
+        return console.error('Query must be between 5kbp to 20kbp')
     }
 
     return filteredBigsiHits

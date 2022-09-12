@@ -41,7 +41,7 @@ export default function f(pluginManager: PluginManager) {
         self.mappedRegions.push(region)
       },
       setIsLoading(state: boolean) {
-        self.isLoading = state     
+        self.isLoading = state
       },
       setNumBinsHit(bins: number) {
         self.numBinsHit = bins
