@@ -84,29 +84,6 @@ function makeBigsiHitsFeatures(
   return allFeatures
 }
 
-async function getMashmapRawHits(
-  model: any,
-  sequences: { ref: string; query: string },
-  percIdentity: string
-) : Promise<string> {
-  const session = getSession(model)
-  const { rpcManager } = session
-
-  const sessionId = 'mashmapQuery'
-  const { ref, query } = sequences
-
-  const params = {
-    sessionId,
-    ref,
-    query,
-    percIdentity
-  }
-
-  const response = await rpcManager.call(sessionId, 'MashmapQueryRPC', params)
-
-  return response as string
-}
-
 async function handleMashmapQuerySketch(
   model: any,
   querySequence: string,
