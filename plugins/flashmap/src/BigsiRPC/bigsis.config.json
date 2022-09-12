@@ -1,7 +1,0 @@
-{
-  "hg38": {
-    "path": "https://flashmap.s3.us-west-1.amazonaws.com/public/hg38_whole_genome.bin",
-    "numRows": 1013000,
-    "numCols": 384
-  }
-}

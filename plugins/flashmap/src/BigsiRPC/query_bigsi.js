@@ -18,7 +18,7 @@
 
 import * as fs from 'fs'
 import * as utils from './utils.js'
-import bigsiConfig from './bigsis.config.local.json'
+import bigsiConfig from '../data_paths.config.json'
 import * as BitSet from 'bitset'
 import matrix from 'matrix-js'
 import * as quantile from '@stdlib/stats-base-dists-binomial-quantile'

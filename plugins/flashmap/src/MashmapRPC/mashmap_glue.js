@@ -1,4 +1,5 @@
-import createModule from './mashmap_module.js'
+import createModule from './mashmap_module.js';
+import * as config from '../data_paths.config.json' 
 
 function processMashmapResults(results){
     console.log(results.split(' '))
@@ -6,7 +7,9 @@ function processMashmapResults(results){
 
 async function main(refSketchName, query, percIdentity){
     const Module = await createModule()
-    const refSketchPath = `http://localhost:3001/public/sketches/${refSketchName}`
+    const refSketchPath = `${config.sketchPath}/${refSketchName}`
+    // for localhost
+    //const refSketchPath = `http://localhost:3001/public/sketches/${refSketchName}`
     const response = await fetch(refSketchPath)
     const refBuffer = await response.arrayBuffer()
     const refSketchArray = new Uint8Array(refBuffer);

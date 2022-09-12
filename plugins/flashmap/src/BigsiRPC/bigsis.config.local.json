@@ -1,8 +1,0 @@
-{
-  "hg38": {
-    "path": "http://localhost:3001/public/hg38_32M_bins.bin",
-    "numRows": 3603000,
-    "numCols": 112,
-    "padding": 4
-  }
-}
