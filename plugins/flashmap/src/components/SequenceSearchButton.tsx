@@ -32,6 +32,7 @@ import {
 } from '@material-ui/core'
 
 import hg38BigsiConfig from '../BigsiRPC/bigsi-maps/hg38_32M_bins_bucket_map.json'
+import { main as computeWindowSize } from './compute_window_size.js'
 
 /* eslint-disable no-nested-ternary */
 
@@ -245,6 +246,7 @@ interface Checkboxes {
     name: string, 
     key: number, 
     label: string 
+    refLength: number
   } 
 }
 
@@ -341,7 +343,7 @@ function SequenceSearchButton({ model }: { model: any }) {
 
   const [trigger, setTrigger] = useState(false);
   const [queryId, setQueryId] = useState(1)
-  const [percIdentity, setPercIdentity] = useState('95')
+  const [percIdentity, setPercIdentity] = useState('97')
   const [sequence, setSequence] = useState('');
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false)
@@ -353,30 +355,26 @@ function SequenceSearchButton({ model }: { model: any }) {
           name: 'hg38',
           key: 1,
           label: 'hg38 - whole genome assembly',
+          refLength: 3_137_300_923
       },
   }
 
-  function estimateMashmapWindowSize (seqLength: number, percIdentity: number) {
-    const baseWindowSize = Math.floor(seqLength/10)  // for 95% match
-    
-    let windowSize = 0
-    if (percIdentity == 95) {
-        windowSize = baseWindowSize
-    } else if (percIdentity > 95 && percIdentity < 99) {
-       windowSize = baseWindowSize * 2 
-    } else {
-        windowSize = baseWindowSize * 4
-    }
+  function estimateMashmapWindowSize (seqLength: number, percIdentity: number, lengthReference: number) {
+    // Constants
+    const pValueCutoff = 1e-3
+    const k = 16
+    const alphabetSize = 4
 
-    windowSize = windowSize - 1
-    return windowSize
+    const estimate = computeWindowSize(pValueCutoff, k, alphabetSize, percIdentity, seqLength, lengthReference)
+    return estimate
   }
 
   async function runSearch() {
     let sequenceFound = false
     for (const bigsiName of selectedBigsis) {
         const cleanSeq = cleanSequence(sequence)
-        const windowSizeEstimate = estimateMashmapWindowSize(cleanSeq.length, parseInt(percIdentity))
+        const lengthReference = checkboxes[bigsiName]['refLength']
+        const windowSizeEstimate = estimateMashmapWindowSize(cleanSeq.length, parseInt(percIdentity), lengthReference)
         const doesBypassBigsi = true ? windowSizeEstimate >= 1999 : false
         if (doesBypassBigsi) {
             sequenceFound = true
