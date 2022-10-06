@@ -6,11 +6,6 @@
     "numCols": 112,
     "padding": 4
   },
-  "hg38_old": {
-    "path": "https://flashmap.s3.us-west-1.amazonaws.com/public/hg38_whole_genome.bin",
-    "numRows": 1013000,
-    "numCols": 384
-  },
   "sketchPath_local": "http://localhost:3001/public/sketches",
   "hg38_local": {
     "path": "http://localhost:3001/public/hg38_32M_bins.bin",
